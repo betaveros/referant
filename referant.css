@@ -1,0 +1,29 @@
+body {
+	font-family: sans-serif;
+	margin: 0; padding: 0;
+}
+.logo {
+	width: 100%;
+}
+.sidebar {
+	box-sizing: border-box;
+	background-color: #025;
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 18rem;
+	padding: 1.5rem;
+	color: white;
+}
+.content {
+	box-sizing: border-box;
+	margin: 0 0 0 18rem;
+	padding: 1.5rem;
+}
+.front-page h2 {
+	margin-top: 0;
+}
+.front-page img {
+	max-height: 18rem;
+}
