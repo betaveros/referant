@@ -12,13 +12,22 @@ body {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: 18rem;
-	padding: 1.5rem;
+	width: 12rem;
 	color: white;
+	display: flex;
+	flex-direction: column;
+	/* justify-content: space-around; */
+}
+.sidebar > * {
+	flex-grow: 1;
+	padding: 1.5rem;
+}
+.sidebar > *:hover {
+	background-color: #026;
 }
 .content {
 	box-sizing: border-box;
-	margin: 0 0 0 18rem;
+	margin: 0 0 0 12rem;
 	padding: 1.5rem;
 }
 .front-page h2 {
