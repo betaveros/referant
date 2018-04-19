@@ -8,21 +8,21 @@
 </head>
 <body>
 	<nav class="sidebar">
-		<header class="nav-tab" id="nav-home">
+		<header class="nav-tab nav-selected" id="nav-home" data-tab="main-home">
 			<img src="referant-logo.png" alt="Referant logo" class="logo">
 			Referant!
 		</header>
-		<div class="nav-tab" id="nav-folders">
+		<div class="nav-tab" id="nav-folders" data-tab="main-folders">
 			<img src="folders.png" alt="Folders" class="logo">
 			Folders
 		</div>
-		<div class="nav-tab" id="nav-layout">
+		<div class="nav-tab" id="nav-layout" data-tab="main-layout">
 			<img src="layouts.png" alt="Layouts" class="logo">
 			Layouts
 		</div>
 	</nav>
 	<main class="content">
-		<div class="front-page">
+		<div class="main-tab main-home">
 			<h2>Welcome to Referant!</h2>
 		<img src="dog1.jpg" alt="dog">
 		<img src="dog2.jpg" alt="dog">
@@ -30,6 +30,14 @@
 		<img src="dog4.jpg" alt="dog">
 		<img src="dog5.jpg" alt="dog">
 		<img src="dog6.jpg" alt="dog">
+		</div>
+		<div class="main-tab main-folders">
+			<h2>Folders</h2>
+			TODO
+		</div>
+		<div class="main-tab main-layout">
+			<h2>Layout</h2>
+			TODO
 		</div>
 	</main>
 	<script

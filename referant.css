@@ -37,9 +37,12 @@ body {
 	margin: 0 0 0 12rem;
 	padding: 1.5rem;
 }
-.front-page h2 {
+.content h2 {
 	margin-top: 0;
 }
-.front-page img {
+.main-home img {
 	max-height: 18rem;
+}
+.nav-folders, .nav-layout {
+	display: none;
 }

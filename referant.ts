@@ -2,5 +2,8 @@
 
 $('.nav-tab').click(function () {
 	$('.nav-tab').removeClass('nav-selected');
-	$(this).addClass('nav-selected');
+	let $tab = $(this);
+	$tab.addClass('nav-selected');
+	$('.main-tab').hide();
+	$('.' + $tab.data('tab')).show();
 });
