@@ -11,3 +11,14 @@ $('.nav-tab').click(function () {
 $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
+function makeFolder() {
+	let $div = $(document.createElement('div'));
+	$div.addClass('folder');
+	let $img = $(document.createElement('img'));
+	$img.attr('src', 'folders.png');
+	$div.append($img);
+	return $div;
+}
+$('#new-folder-button').click(function () {
+	$('.main-folders').append(makeFolder());
+});

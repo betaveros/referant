@@ -66,3 +66,9 @@ body {
 input.search-query {
 	font-size: 125%;
 }
+.folder { display: inline-block; }
+.folder img {
+	width: 2em;
+	display: inline-block;
+	filter: invert(1); /* haxx */
+}
