@@ -7,3 +7,7 @@ $('.nav-tab').click(function () {
 	$('.main-tab').hide();
 	$('.' + $tab.data('tab')).show();
 });
+
+$('#search-button').click(function () {
+	$('#search-dialog').toggle();
+});

@@ -46,3 +46,23 @@ body {
 .nav-folders, .nav-layout {
 	display: none;
 }
+.btn {
+	font-size: 100%;
+	border-width: 0;
+	border-radius: 1em;
+	padding: 0.5em;
+	background-color: #025;
+	cursor: pointer;
+	color: white;
+}
+.btn:hover {
+	background-color: #057;
+}
+.dialog {
+	border: 1px solid black;
+	padding: 1em;
+	border-radius: 1em;
+}
+input.search-query {
+	font-size: 125%;
+}
