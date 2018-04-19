@@ -25,6 +25,13 @@ body {
 .sidebar > *:hover {
 	background-color: #026;
 }
+.sidebar > .nav-selected {
+	background-color: white;
+	color: black;
+}
+.sidebar > .nav-selected img {
+	filter: invert(1);
+}
 .content {
 	box-sizing: border-box;
 	margin: 0 0 0 12rem;
