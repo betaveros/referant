@@ -7,7 +7,7 @@ body {
 }
 .sidebar {
 	box-sizing: border-box;
-	background-color: #025;
+	background-color: hsl(241, 40%, 19%);
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -16,21 +16,25 @@ body {
 	color: white;
 	display: flex;
 	flex-direction: column;
+    text-align: center;
 	/* justify-content: space-around; */
 }
 .sidebar > * {
 	flex-grow: 1;
 	padding: 1.5rem;
 }
+.sidebar > * > img {
+    filter:invert(1);
+}
 .sidebar > *:hover {
-	background-color: #026;
+	background-color: hsl(241, 100%, 19%);
 }
 .sidebar > .nav-selected {
 	background-color: white;
 	color: black;
 }
 .sidebar > .nav-selected img {
-	filter: invert(1);
+	filter:none;
 }
 .content {
 	box-sizing: border-box;
