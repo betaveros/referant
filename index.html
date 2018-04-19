@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <title>Referant</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="jquery/jquery-ui.min.css">
+<link rel="stylesheet" href="jquery/jquery-ui.structure.min.css">
+<link rel="stylesheet" href="jquery/jquery-ui.theme.min.css">
 <link rel="stylesheet" href="referant.css">
 </head>
 <body>
@@ -42,12 +45,21 @@
 		</div>
 		<div class="main-tab main-layout">
 			<h2>Layout</h2>
-			TODO
+			<div class="layout-area">
+			<div class="layout-img">
+				<img src="dog1.jpg" alt="dog">
+				<div class="ui-resizable-handle ui-resizable-nw" id="nwgrip"></div>
+				<div class="ui-resizable-handle ui-resizable-ne" id="negrip"></div>
+				<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
+				<div class="ui-resizable-handle ui-resizable-se" id="segrip"></div>
+			</div>
+			</div>
 		</div>
 	</main>
 	<script
 		src="jquery/jquery-3.3.1.min.js"
 		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="></script>
+	<script src="jquery/jquery-ui.min.js"></script>
 	<script src="referant.js"></script>
 </body>
 </html>
