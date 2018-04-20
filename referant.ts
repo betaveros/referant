@@ -70,6 +70,8 @@ const images: Image[] = [
 	}
 ];
 
+let filesystem: any[] = [];
+
 $('.nav-tab').click(function () {
 	$('.nav-tab').removeClass('nav-selected');
 	let $tab = $(this);
@@ -90,7 +92,8 @@ function makeFolder() {
 	return $div;
 }
 $('#new-folder-button').click(function () {
-	$('.folder-display').append(makeFolder());
+	filesystem.push([]);
+	rerenderFilesystem();
 });
 $('.layout-img').draggable();
 $('.layout-img').resizable({
@@ -153,6 +156,21 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 	return image[filter.key].indexOf(filter.value) !== -1;
 }
 
+function rerenderFilesystem() {
+	$('#filesystem-viewer').empty();
+	for (const node of filesystem) {
+		if (node instanceof Array) {
+			console.log('array');
+			$('#filesystem-viewer').append(makeFolder());
+		} else {
+			console.log(node);
+			$('#filesystem-viewer').append($('<img/>', {
+				src: node,
+			}));
+		}
+	}
+}
+
 function updateSearchResults() {
 	$('#search-results').empty();
 	const query = $('#search-query').val();
@@ -161,7 +179,23 @@ function updateSearchResults() {
 			Array.from(activeFilters.values()).every((filter) =>
 				matchesFilter(image, filter))) {
 			const $img = $('<img/>', {
-				src: image.filename
+				src: image.filename,
+			});
+			$img.click(() => {
+				const $imgFocus = $('<div/>', {
+					'class': 'image-focus',
+				});
+				$imgFocus.append($img.clone());
+				const $imgAddButton = $('<button/>', {
+					'class': 'btn',
+				});
+				$imgAddButton.text('add');
+				$imgAddButton.click(() => {
+					filesystem.push(image.filename);
+					rerenderFilesystem();
+				});
+				$imgFocus.append($imgAddButton);
+				$img.replaceWith($imgFocus);
 			});
 			$('#search-results').append($img);
 		}
