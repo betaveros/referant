@@ -23,10 +23,6 @@ function makeFolder() {
 $('#new-folder-button').click(function () {
 	$('.main-folders').append(makeFolder());
 });
-interface DragStatus {
-	x: number;
-	y: number;
-};
 $('.layout-img').draggable();
 $('.layout-img').resizable({
 	aspectRatio: true,
@@ -89,3 +85,34 @@ function makeFilter(name: string) {
 		})
 	}
 }
+function addImage(filename: string, alt: string): void {
+	const $img = $('<div>');
+	$img.addClass('layout-image');
+	$img.append(`
+		<img src="${filename}" alt="${alt}">
+		<div class="ui-resizable-handle ui-resizable-nw" id="nwgrip"></div>
+		<div class="ui-resizable-handle ui-resizable-ne" id="negrip"></div>
+		<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
+		<div class="ui-resizable-handle ui-resizable-se" id="segrip"></div>
+	`);
+	$img.draggable();
+	$img.resizable({
+		aspectRatio: true,
+		handles: {
+			'nw': '.ui-resizable-nw',
+			'ne': '.ui-resizable-ne',
+			'sw': '.ui-resizable-sw',
+			'se': '.ui-resizable-se',
+		}
+	});
+	$img.mousedown(() => {
+		$('.layout-image').removeClass('layout-area-selected');
+		$img.addClass('layout-area-selected');
+	});
+	$('.layout-area').append($img);
+}
+$(document).ready(() => {
+	$('#new-image-button').click(() => {
+		addImage(`dog${Math.floor(Math.random() * 6) + 1}.jpg`, "dog");
+	});
+});
