@@ -1,6 +1,7 @@
 body {
 	font-family: sans-serif;
 	margin: 0; padding: 0;
+	background-color:hsl(212,14%,34%);
 }
 .logo {
 	width: 100%;
@@ -17,7 +18,7 @@ body {
 	display: flex;
 	flex-direction: column;
     text-align: center;
-    border-right: white 1px;
+    border-right: white 1px solid;
     padding: 50px 0px 0px 0px;
 	/* justify-content: space-around; */
 }
@@ -45,6 +46,10 @@ body {
 }
 .content h2 {
 	margin-top: 0;
+	color:white;
+}
+.content h4{
+	color: white;
 }
 .main-home img {
 	max-height: 18rem;
@@ -54,7 +59,7 @@ body {
 	grid-template-columns: repeat(3, 1fr);
   	grid-gap: 10px;
   	grid-auto-rows: minmax(100px, auto);
-  	background-color: lightgray;
+  	background-color: hsl(212,4%,43%);
   	padding: 20px;
   	border-radius: 1em;
 }
@@ -84,9 +89,13 @@ body {
 	background-color: #057;
 }
 .dialog {
-	border: 1px solid black;
+	border: 1px solid gray;
 	padding: 1em;
 	border-radius: 1em;
+	background-color:lightgray;
+}
+.dialog > * {
+	color: black;
 }
 input.search-query {
 	font-size: 125%;
