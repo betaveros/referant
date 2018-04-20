@@ -122,31 +122,14 @@ input.search-query {
 .color-select button:hover {
 	filter: brightness(110%);
 }
-
-.red-selector {
-	background-color: red;
+.attention {
+	animation: 1s linear attention;
 }
-.yellow-selector {
-	background-color: yellow;
-}
-.blue-selector {
-	background-color: blue;
-}
-.green-selector {
-	background-color: green;
-}
-.purple-selector {
-	background-color: purple;
-}
-.orange-selector {
-	background-color: orange;
-}
-.white-selector {
-	background-color: white;
-}
-.gray-selector {
-	background-color: gray;
-}
-.black-selector {
-	background-color: black;
+@keyframes attention {
+	from {
+		background-color: orange;
+	}
+	to {
+		background-color: transparent;
+	}
 }

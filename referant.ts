@@ -49,21 +49,25 @@ $('#color-activate').click(function () {
 
 const filterNames : string[] = ["red", "yellow", "blue", "green", "purple", "orange", "white", "gray", "black"];
 
-let activeFilters = new Set();
+let activeFilters = new Map();
 
 $(document).ready(function () {
+	const select = $('#color-select');
 	for(const filter of filterNames) {
-		const button = $('.' + filter + '-selector');
+		const button = $(document.createElement('button'));
+		button.css('background-color', filter);
 		button.click(function () {
 			makeFilter(filter);
 		});
+		select.append(button);
 	}
 });
 
 function makeFilter(name: string) {
 	console.log(activeFilters);
-	if(!activeFilters.has(name)) {
-		activeFilters.add(name);
+	if(activeFilters.has(name)) {
+		activeFilters.get(name).addClass('attention');
+	} else {
 		const thing = $(document.createElement('div'));
 		const x = $(document.createElement('button'));
 		x.text('x');
@@ -71,6 +75,7 @@ function makeFilter(name: string) {
 		writing.text(name);
 		thing.append(x);
 		thing.append(writing);
+		activeFilters.set(name, thing);
 		$('#filterlist').append(thing);
 		x.click(function() {
 			thing.remove();
