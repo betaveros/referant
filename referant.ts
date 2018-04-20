@@ -64,6 +64,11 @@ const images: Image[] = [
 		colors: ['yellow'],
 	},
 	{
+		filename: 'shark.jpg',
+		keywords: ['shark'],
+		colors: ['blue'],
+	},
+	{
 		filename: 'iguana.jpg',
 		keywords: ['lizard', 'iguana'],
 		colors: ['green']
