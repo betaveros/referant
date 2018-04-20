@@ -51,7 +51,7 @@ body {
 .content h4{
 	color: white;
 }
-.main-home img {
+.main-home img, .search-results img {
 	max-height: 18rem;
 }
 .popular{

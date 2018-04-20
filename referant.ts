@@ -1,6 +1,45 @@
 /// <reference path ="jquery/jquery.d.ts"/>
 /// <reference path ="jquery/jquery-ui.d.ts"/>
 
+interface Image {
+	filename: string;
+	keywords: string[];
+	colors: string[];
+}
+
+const images: Image[] = [
+	{
+		filename: 'dog1.jpg',
+		keywords: ['dog'],
+		colors: ['white', 'black'],
+	},
+	{
+		filename: 'dog2.jpg',
+		keywords: ['dog'],
+		colors: ['orange'],
+	},
+	{
+		filename: 'dog3.jpg',
+		keywords: ['dog'],
+		colors: ['orange'],
+	},
+	{
+		filename: 'dog4.jpg',
+		keywords: ['dog'],
+		colors: ['black'],
+	},
+	{
+		filename: 'dog5.jpg',
+		keywords: ['dog'],
+		colors: ['orange', 'white'],
+	},
+	{
+		filename: 'dog6.jpg',
+		keywords: ['dog'],
+		colors: ['orange', 'white'],
+	},
+];
+
 $('.nav-tab').click(function () {
 	$('.nav-tab').removeClass('nav-selected');
 	let $tab = $(this);
@@ -43,6 +82,12 @@ $('#color-activate').click(function () {
     }
 });
 
+interface Filter {
+	key: string;
+	value: string;
+	element: JQuery;
+}
+
 const filterNames : string[] = ["red", "yellow", "blue", "green", "purple", "orange", "white", "gray", "black"];
 
 let activeFilters = new Map();
@@ -53,13 +98,39 @@ $(document).ready(function () {
 		const button = $(document.createElement('button'));
 		button.css('background-color', filter);
 		button.click(function () {
-			makeFilter(filter);
+			makeFilter('colors', filter);
 		});
 		select.append(button);
 	}
 });
 
-function makeFilter(name: string) {
+function matchesQuery(image: Image, query0: string): boolean {
+	const query = query0.toLowerCase();
+	return (image.filename.indexOf(query) !== -1 ||
+		image.keywords.indexOf(query) !== -1);
+}
+function matchesFilter(image: Image, filter: Filter): boolean {
+	return image[filter.key].indexOf(filter.value) !== -1;
+}
+
+function updateSearchResults() {
+	$('#search-results').empty();
+	const query = $('#search-query').val();
+	for (const image of images) {
+		if (matchesQuery(image, query.toString()) &&
+			Array.from(activeFilters.values()).every((filter) =>
+				matchesFilter(image, filter))) {
+			const $img = $('<img/>', {
+				src: image.filename
+			});
+			$('#search-results').append($img);
+		}
+	}
+}
+
+$('#search-query').keyup(updateSearchResults);
+
+function makeFilter(key: string, name: string) {
 	console.log(activeFilters);
 	if(activeFilters.has(name)) {
 		const item = activeFilters.get(name)
@@ -77,11 +148,18 @@ function makeFilter(name: string) {
 		writing.text(name);
 		thing.append(x);
 		thing.append(writing);
-		activeFilters.set(name, thing);
+		const filter: Filter = {
+			key: key,
+			value: name,
+			element: thing,
+		};
 		$('#filterlist').append(thing);
+		activeFilters.set(name, filter);
+		updateSearchResults();
 		x.click(function() {
 			thing.remove();
 			activeFilters.delete(name);
+			updateSearchResults();
 		})
 	}
 }
