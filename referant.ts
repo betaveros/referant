@@ -80,19 +80,43 @@ $('.nav-tab').click(function () {
 	$('.' + $tab.data('tab')).show();
 });
 
+let shown : boolean = true;
+$('#header-dialog').click(function() {
+	shown = !shown;
+	if(shown) {
+		$('#main-dialog').show();
+		$('#triangle').html('&#x25B2;');
+	} else {
+		$('#main-dialog').hide();
+		$('#triangle').html('&#x25BC;');
+	}
+})
+
 $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
-function makeFolder() {
+
+interface Folder {
+	name: string;
+	elements: any[];
+	isFolder: boolean;
+}
+
+function makeFolder(name: string) : Folder {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
 	let $img = $(document.createElement('img'));
 	$img.attr('src', 'folders.png');
+	let label = $(document.createElement('span'));
+	label.text(name);
 	$div.append($img);
+	$div.append(label);
 	return $div;
 }
 $('#new-folder-button').click(function () {
-	filesystem.push([]);
+	const rawName = $('#folder-name').val();
+	const name = rawName === '' ? 'Unnamed Folder' : rawName;
+	filesystem.push({name: name, elements: [], isFolder: true});
 	rerenderFilesystem();
 });
 $('.layout-img').draggable();
@@ -117,14 +141,7 @@ $('#color-activate').click(function () {
 
 interface SearchResult {
 	element: JQuery
-	filename: image
-}
-
-interface Folder {
-	key: string;
-	name: string;
-	element: JQuery;
-	textbox: JQuery;
+	7
 }
 
 interface Filter {
@@ -164,11 +181,10 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 function rerenderFilesystem() {
 	$('#filesystem-viewer').empty();
 	for (const node of filesystem) {
-		if (node instanceof Array) {
-			console.log('array');
-			$('#filesystem-viewer').append(makeFolder());
+		if (node.isFolder) {
+			console.log('folder');
+			$('#filesystem-viewer').append(makeFolder(node.name));
 		} else {
-			console.log(node);
 			$('#filesystem-viewer').append($('<img/>', {
 				src: node,
 			}));
@@ -210,7 +226,6 @@ function updateSearchResults() {
 $('#search-query').keyup(updateSearchResults);
 
 function makeFilter(key: string, name: string) {
-	console.log(activeFilters);
 	if(activeFilters.has(name)) {
 		const item = activeFilters.get(name)
 		item.element.addClass('attention');
@@ -273,6 +288,7 @@ function addImage(filename: string, alt: string): void {
 
 $(document).ready(() => {
 	$('#new-image-button').click(() => {
-		addImage(images[Math.floor(Math.random() * images.length)].filename, "dog");
+		const index = Math.floor(Math.random() * images.length);
+		addImage(images[index].filename, images[index].keywords[0]);
 	});
 });

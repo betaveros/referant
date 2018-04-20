@@ -21,12 +21,13 @@ body {
     border-right: white 1px solid;
     padding: 50px 0px 0px 0px;
     user-select: none;
-    cursor: pointer;
+    -webkit-user-select: none;
 	/* justify-content: space-around; */
 }
 .sidebar > * {
 	padding: .5em;
 	text-align:center;
+	cursor: pointer;
 }
 .sidebar > * > img {
     filter:invert(1);
@@ -101,10 +102,15 @@ body {
 input.search-query {
 	font-size: 125%;
 }
+input.folder-name {
+	font-size: 125%;
+}
 .folder { 
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	text-align: center;
 }
 .folder img {
 	width: 4em;
@@ -188,4 +194,13 @@ input.search-query {
 	width: 7em;
 	height: 7em;
 	object-fit: contain;
+}
+
+#header-dialog {
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+#triangle {
+	text-align: right;
 }
