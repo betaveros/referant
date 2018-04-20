@@ -89,13 +89,11 @@ body {
 	background-color: #057;
 }
 .dialog {
+	color: black;
 	border: 1px solid gray;
 	padding: 1em;
 	border-radius: 1em;
 	background-color:lightgray;
-}
-.dialog > * {
-	color: black;
 }
 input.search-query {
 	font-size: 125%;
@@ -115,9 +113,14 @@ input.search-query {
 }
 .ui-resizable-handle {
 	display: none;
-	width: 10px; height: 10px;
 	border: 1px solid #036;
 	background-color: #9cf;
+}
+.ui-resizable-se {
+	width: 9px;
+	height: 9px;
+	right: -5px;
+	bottom: -5px;
 }
 .layout-area-selected .ui-resizable-handle {
 	display: block;
