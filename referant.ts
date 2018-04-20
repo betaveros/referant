@@ -67,10 +67,77 @@ const images: Image[] = [
 		filename: 'jelly.jpg',
 		keywords: ['jellyfish', 'jelly'],
 		colors: ['blue', 'orange']
-	}
+	},
+	{
+		filename: 'cave-barbados.jpg',
+		keywords: ['cave', 'barbados'],
+		colors: ['orange']
+	},
+	{
+		filename: 'limestone-cave.jpg',
+		keywords: ['cave', 'limestone'],
+		colors: ['blue', 'orange', 'green', 'white', 'gray']
+	},
+	{
+		filename: 'punkva-cave.jpg',
+		keywords: ['cave'],
+		colors: ['white', 'orange']
+	},
+	{
+		filename: 'sea-cave.jpg',
+		keywords: ['sea', 'cave'],
+		colors: ['black', 'orange']
+	},
+	{
+		filename: 'stone-cave.jpg',
+		keywords: ['stone', 'cave', 'vines'],
+		colors: ['green', 'gray']
+	},
+	{
+		filename: 'sunset-cave.jpg',
+		keywords: ['sunset', 'cave'],
+		colors: ['orange', 'black']
+	},
 ];
 
-let filesystem: any[] = [];
+interface FileNode {
+	type: "image"|"folder";
+	name: string;
+	filename?: string;
+	contents?: FileNode[];
+}
+
+let filesystem: FileNode[] = [];
+let filesystemPath: string[] = [];
+
+function getCurrentNode() {
+	let cur = filesystem;
+	for (const pathComponent of filesystemPath) {
+		let success = false;
+		for (const node of cur) {
+			if (pathComponent === node.name) {
+				if (node.type !== "folder") {
+					console.error('suddenly image :(');
+					break;
+				}
+				cur = node.contents;
+				success = true;
+				break;
+			}
+		}
+		if (!success) {
+			console.error('bad path!');
+		}
+	}
+	return cur;
+}
+function getNodeDictionary(node: FileNode): { [name: string]: FileNode } {
+	let ret: { [name: string]: FileNode } = {};
+	for (const child of node.contents) {
+		ret[child.name] = child;
+	}
+	return ret;
+}
 
 $('.nav-tab').click(function () {
 	$('.nav-tab').removeClass('nav-selected');
@@ -96,13 +163,7 @@ $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
 
-interface Folder {
-	name: string;
-	elements: any[];
-	isFolder: boolean;
-}
-
-function makeFolder(name: string) : Folder {
+function makeFolder(name: string) : JQuery {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
 	let $img = $(document.createElement('img'));
@@ -114,10 +175,16 @@ function makeFolder(name: string) : Folder {
 	return $div;
 }
 $('#new-folder-button').click(function () {
-	const rawName = $('#folder-name').val();
-	const name = rawName === '' ? 'Unnamed Folder' : rawName;
-	filesystem.push({name: name, elements: [], isFolder: true});
+	const rawName = '' + $('#folder-name').val();
+	$('#folder-name').val('');
+	const name = (rawName === '' ? 'New Folder' : rawName);
+	filesystem.push({
+		type: 'folder',
+		name: name,
+		contents: [] as FileNode[],
+	});
 	rerenderFilesystem();
+	console.log("nothing");
 });
 $('.layout-img').draggable();
 $('.layout-img').resizable({
@@ -140,8 +207,8 @@ $('#color-activate').click(function () {
 });
 
 interface SearchResult {
-	element: JQuery
-	7
+	element: JQuery;
+	filename: string;
 }
 
 interface Filter {
@@ -181,12 +248,11 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 function rerenderFilesystem() {
 	$('#filesystem-viewer').empty();
 	for (const node of filesystem) {
-		if (node.isFolder) {
-			console.log('folder');
+		if (node.type === 'folder') {
 			$('#filesystem-viewer').append(makeFolder(node.name));
 		} else {
 			$('#filesystem-viewer').append($('<img/>', {
-				src: node,
+				src: node.filename,
 			}));
 		}
 	}
@@ -212,7 +278,12 @@ function updateSearchResults() {
 				});
 				$imgAddButton.text('add');
 				$imgAddButton.click(() => {
-					filesystem.push(image.filename);
+					filesystem.push({
+						type: "image",
+						name: image.filename,
+						filename: image.filename,
+						// contents: undefined,
+					});
 					rerenderFilesystem();
 				});
 				$imgFocus.append($imgAddButton);
