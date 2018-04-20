@@ -48,6 +48,18 @@ body {
 .main-home img {
 	max-height: 18rem;
 }
+.popular{
+	display:grid;
+	grid-template-columns: repeat(3, 1fr);
+  	grid-gap: 10px;
+  	grid-auto-rows: minmax(100px, auto);
+  	background-color: lightgray;
+  	padding: 20px;
+  	border-radius: 1em;
+}
+.popular > img {
+	width: 25vw;
+}
 .main-folders, .main-layout {
 	display: none;
 }
@@ -80,8 +92,6 @@ input.search-query {
 }
 .folder { 
 	display: inline-block; 
-
-
 }
 .folder img {
 	width: 4em;
