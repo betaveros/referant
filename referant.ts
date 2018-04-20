@@ -165,6 +165,7 @@ function makeFilter(key: string, name: string) {
 	} else {
 		const thing = $(document.createElement('div'));
 		const x = $(document.createElement('button'));
+		x.addClass('btn');
 		x.text('x');
 		const writing = $(document.createElement('span'));
 		writing.text(name);
