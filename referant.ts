@@ -39,19 +39,34 @@ const images: Image[] = [
 		colors: ['orange', 'white'],
 	},
 	{
-		filename: 'dog7.jpg',
+		filename: 'iguana.jpg',
 		keywords: ['lizard', 'iguana'],
 		colors: ['green']
 	},
 	{
-		filename: 'dog8.jpg',
+		filename: 'cat.jpg',
 		keywords: ['cat'],
 		colors: ['gray', 'blue'],
-	}
+	},
 	{
-		filename: 'pond.jpg',
+		filename: 'pond1.jpg',
 		keywords: ['pond', 'water'],
 		colors: ['blue', 'green'],
+	},
+	{
+		filename: 'lava.jpeg',
+		keywords: ['lava'],
+		colors: ['red', 'gray']
+	},
+	{
+		filename: 'forest.jpg',
+		keywords: ['forest'],
+		colors: ['green']
+	},
+	{
+		filename: 'jelly.jpg',
+		keywords: ['jellyfish', 'jelly'],
+		colors: ['blue', 'orange']
 	}
 ];
 
@@ -128,8 +143,11 @@ $(document).ready(function () {
 
 function matchesQuery(image: Image, query0: string): boolean {
 	const query = query0.toLowerCase();
-	return (image.filename.indexOf(query) !== -1 ||
-		image.keywords.indexOf(query) !== -1);
+	if(image.filename.indexOf(query) !== -1) return true;
+	for(const keyword of image.keywords) {
+		if(keyword.indexOf(query) !== -1) return true;
+	}
+	return false;
 }
 function matchesFilter(image: Image, filter: Filter): boolean {
 	return image[filter.key].indexOf(filter.value) !== -1;
