@@ -114,9 +114,13 @@ input.search-query {
 	height: 100%;
 }
 .ui-resizable-handle {
+	display: none;
 	width: 10px; height: 10px;
 	border: 1px solid #036;
 	background-color: #9cf;
+}
+.layout-area-selected .ui-resizable-handle {
+	display: block;
 }
 .color-select {
 	display: inline-grid;
