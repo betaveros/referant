@@ -115,6 +115,11 @@ $('#color-activate').click(function () {
     }
 });
 
+interface SearchResult {
+	element: JQuery
+	filename: image
+}
+
 interface Folder {
 	key: string;
 	name: string;

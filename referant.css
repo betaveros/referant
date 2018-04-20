@@ -160,3 +160,15 @@ input.search-query {
 	display: flex;
 	direction: row;
 }
+.search-results {
+	display: grid;
+	grid-gap: .5em;
+	grid-template-columns: repeat(auto-fill, 12em);
+	grid-template-rows: repeat(auto-fill, 12em);
+}
+
+.search-results img {
+	width: 12em;
+	height: 12em;
+	object-fit: contain;
+}
