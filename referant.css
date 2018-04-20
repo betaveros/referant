@@ -161,6 +161,7 @@ input.search-query {
 	direction: row;
 }
 .search-results {
+	margin-top: .5em;
 	display: grid;
 	grid-gap: .5em;
 	grid-template-columns: repeat(auto-fill, 12em);
@@ -170,5 +171,18 @@ input.search-query {
 .search-results img {
 	width: 12em;
 	height: 12em;
+	object-fit: contain;
+}
+
+.folder-display{
+	display: grid;
+	grid-template-columns: repeat(auto-fill, 7em);
+  	grid-gap: .5em;
+  	grid-auto-rows: minmax(7em, auto)
+}
+
+.folder-display > img {
+	width: 7em;
+	height: 7em;
 	object-fit: contain;
 }
