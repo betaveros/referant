@@ -98,6 +98,21 @@ const images: Image[] = [
 		keywords: ['sunset', 'cave'],
 		colors: ['orange', 'black']
 	},
+	{
+		filename: 'sunset.jpg',
+		keywords: ['sunset', 'view'],
+		colors: ['purple']
+	},
+	{
+		filename: 'wheat-hills.jpg',
+		keywords: ['wheat', 'hill'],
+		colors: ['yellow', 'blue']
+	},
+	{
+		filename: 'moon.jpg',
+		keywords: ['moon', 'night', 'sky', 'astronomy'],
+		colors: ['gray']
+	}
 ];
 
 interface FileNode {

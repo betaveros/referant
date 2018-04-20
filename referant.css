@@ -162,7 +162,7 @@ input.folder-name {
 	filter: brightness(110%);
 }
 .attention {
-	animation: 1s linear attention;
+	animation: 0.5s attention;
 }
 @keyframes attention {
 	from {
