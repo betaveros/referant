@@ -91,7 +91,7 @@ body {
 	border-width: 0;
 	border-radius: .5em;
 	padding: 0.5em;
-	margin: 0.5em 0;
+	margin: 0.5em 0.5em 0.5em 0;
 	background-color: #025;
 	cursor: pointer;
 	color: white;
@@ -124,6 +124,9 @@ input.folder-name {
 	display: inline-block;
 	margin: 0 auto;
 	filter: invert(.9);
+}
+.dialog .folder img {
+	filter: none;
 }
 .image-focus {
 	background-color: black;
@@ -214,6 +217,9 @@ input.folder-name {
 #main-dialog {
 	padding: 1em;
 	padding-top: 0;
+}
+.dialog-padded {
+	padding: 1em;
 }
 
 #triangle {
