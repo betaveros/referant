@@ -70,7 +70,44 @@ const images: Image[] = [
 	}
 ];
 
-let filesystem: any[] = [];
+interface FileNode {
+	type: "image"|"folder";
+	name: string;
+	filename?: string;
+	contents?: FileNode[];
+}
+
+let filesystem: FileNode[] = [];
+let filesystemPath: string[] = [];
+
+function getCurrentNode() {
+	let cur = filesystem;
+	for (const pathComponent of filesystemPath) {
+		let success = false;
+		for (const node of cur) {
+			if (pathComponent === node.name) {
+				if (node.type !== "folder") {
+					console.error('suddenly image :(');
+					break;
+				}
+				cur = node.contents;
+				success = true;
+				break;
+			}
+		}
+		if (!success) {
+			console.error('bad path!');
+		}
+	}
+	return cur;
+}
+function getNodeDictionary(node: FileNode): { [name: string]: FileNode } {
+	let ret: { [name: string]: FileNode } = {};
+	for (const child of node.contents) {
+		ret[child.name] = child;
+	}
+	return ret;
+}
 
 $('.nav-tab').click(function () {
 	$('.nav-tab').removeClass('nav-selected');
@@ -92,7 +129,11 @@ function makeFolder() {
 	return $div;
 }
 $('#new-folder-button').click(function () {
-	filesystem.push([]);
+	filesystem.push({
+		type: 'folder',
+		name: 'New Folder',
+		contents: [] as FileNode[],
+	});
 	rerenderFilesystem();
 });
 $('.layout-img').draggable();
@@ -116,8 +157,8 @@ $('#color-activate').click(function () {
 });
 
 interface SearchResult {
-	element: JQuery
-	filename: image
+	element: JQuery;
+	filename: string;
 }
 
 interface Folder {
@@ -164,13 +205,11 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 function rerenderFilesystem() {
 	$('#filesystem-viewer').empty();
 	for (const node of filesystem) {
-		if (node instanceof Array) {
-			console.log('array');
+		if (node.type === 'folder') {
 			$('#filesystem-viewer').append(makeFolder());
 		} else {
-			console.log(node);
 			$('#filesystem-viewer').append($('<img/>', {
-				src: node,
+				src: node.filename,
 			}));
 		}
 	}
@@ -196,7 +235,12 @@ function updateSearchResults() {
 				});
 				$imgAddButton.text('add');
 				$imgAddButton.click(() => {
-					filesystem.push(image.filename);
+					filesystem.push({
+						type: "image",
+						name: image.filename,
+						filename: image.filename,
+						// contents: undefined,
+					});
 					rerenderFilesystem();
 				});
 				$imgFocus.append($imgAddButton);
