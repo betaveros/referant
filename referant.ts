@@ -67,7 +67,37 @@ const images: Image[] = [
 		filename: 'jelly.jpg',
 		keywords: ['jellyfish', 'jelly'],
 		colors: ['blue', 'orange']
-	}
+	},
+	{
+		filename: 'cave-barbados.jpg',
+		keywords: ['cave', 'barbados'],
+		colors: ['orange']
+	},
+	{
+		filename: 'limestone-cave.jpg',
+		keywords: ['cave', 'limestone'],
+		colors: ['blue', 'orange', 'green', 'white', 'gray']
+	},
+	{
+		filename: 'punkva-cave.jpg',
+		keywords: ['cave'],
+		colors: ['white', 'orange']
+	},
+	{
+		filename: 'sea-cave.jpg',
+		keywords: ['sea', 'cave'],
+		colors: ['black', 'orange']
+	},
+	{
+		filename: 'stone-cave.jpg',
+		keywords: ['stone', 'cave', 'vines'],
+		colors: ['green', 'gray']
+	},
+	{
+		filename: 'sunset-cave.jpg',
+		keywords: ['sunset', 'cave'],
+		colors: ['orange', 'black']
+	},
 ];
 
 interface FileNode {
