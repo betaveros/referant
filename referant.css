@@ -147,7 +147,7 @@ input.search-query {
 }
 @keyframes attention {
 	from {
-		background-color: orange;
+		background-color: red;
 	}
 	to {
 		background-color: transparent;
