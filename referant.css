@@ -207,6 +207,8 @@ input.folder-name {
 }
 
 #header-dialog {
+	display: flex;
+	justify-content: space-between;
 	user-select: none;
 	-webkit-user-select: none;
 	padding: 1em;
