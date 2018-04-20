@@ -39,6 +39,31 @@ const images: Image[] = [
 		colors: ['orange', 'white'],
 	},
 	{
+		filename: 'labrador.jpg',
+		keywords: ['dog', 'labrador'],
+		colors: ['yellow'],
+	},
+	{
+		filename: 'red-daisy.jpg',
+		keywords: ['daisy', 'flower'],
+		colors: ['red'],
+	},
+	{
+		filename: 'purple-flowers.jpg',
+		keywords: ['flower'],
+		colors: ['purple'],
+	},
+	{
+		filename: 'cardinal.jpg',
+		keywords: ['cardinal', 'bird'],
+		colors: ['red'],
+	},
+	{
+		filename: 'ducklings.jpg',
+		keywords: ['duck', 'bird'],
+		colors: ['yellow'],
+	},
+	{
 		filename: 'iguana.jpg',
 		keywords: ['lizard', 'iguana'],
 		colors: ['green']
@@ -374,7 +399,7 @@ $(document).ready(() => {
 	});
 	$('#new-image-button').click(() => {
 		const $addViewer = $('#add-to-layout-viewer');
-		renderFiles(filesystem, $addViewer, "You haven't added any images yet!", (node) => {
+		renderFiles(filesystem, $addViewer, "You don't have any images in your folders you can add yet!", (node) => {
 			if (node.type === 'image') {
 				addImage(node.filename, node.name);
 			}
