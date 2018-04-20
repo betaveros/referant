@@ -95,7 +95,6 @@ body {
 .dialog {
 	color: black;
 	border: 1px solid gray;
-	padding: 1em;
 	border-radius: 1em;
 	background-color:lightgray;
 }
@@ -199,6 +198,12 @@ input.folder-name {
 #header-dialog {
 	user-select: none;
 	-webkit-user-select: none;
+	padding: 1em;
+}
+
+#main-dialog {
+	padding: 1em;
+	padding-top: 0;
 }
 
 #triangle {
