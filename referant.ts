@@ -37,7 +37,7 @@ $('.layout-img').resizable({
 		'se': '.ui-resizable-se',
 	}
 });
-let colorVisible = false;
+let colorVisible = true;
 $('#color-activate').click(function () {
 	colorVisible = !colorVisible;
     if (colorVisible) {
@@ -66,7 +66,13 @@ $(document).ready(function () {
 function makeFilter(name: string) {
 	console.log(activeFilters);
 	if(activeFilters.has(name)) {
-		activeFilters.get(name).addClass('attention');
+		const item = activeFilters.get(name)
+		item.addClass('attention');
+		item.on('animationend', function (e) {
+			if(e.originalEvent.animationName === 'attention') {
+				item.removeClass('attention');
+			}
+		})
 	} else {
 		const thing = $(document.createElement('div'));
 		const x = $(document.createElement('button'));
