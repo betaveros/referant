@@ -380,6 +380,6 @@ $(document).ready(() => {
 			}
 			$addViewer.hide();
 		});
-		$addViewer.show();
+		$addViewer.css('display', 'grid');
 	});
 });
