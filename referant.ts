@@ -269,6 +269,8 @@ function renderFiles(files: FileNode[], $target: JQuery, emptyMsg?: string, call
 	}
 }
 
+let focusedSearchImage: Image = undefined;
+
 function updateSearchResults() {
 	$('#search-results').empty();
 	const query = $('#search-query').val();
@@ -280,25 +282,11 @@ function updateSearchResults() {
 				src: image.filename,
 			});
 			$img.click(() => {
-				const $imgFocus = $('<div/>', {
-					'class': 'image-focus',
-				});
-				$imgFocus.append($img.clone());
-				const $imgAddButton = $('<button/>', {
-					'class': 'btn',
-				});
-				$imgAddButton.text('add');
-				$imgAddButton.click(() => {
-					filesystem.push({
-						type: "image",
-						name: image.filename,
-						filename: image.filename,
-						// contents: undefined,
-					});
-					rerenderFilesystem();
-				});
-				$imgFocus.append($imgAddButton);
-				$img.replaceWith($imgFocus);
+				focusedSearchImage = image;
+				$('#search-modal img').attr('src', image.filename);
+				$('#search-modal .filename').text(image.filename);
+				$('#search-modal .description').text(`${image.keywords.join(', ')}`);
+				$('#search-modal').show();
 			});
 			$('#search-results').append($img);
 		}
@@ -369,6 +357,21 @@ function addImage(filename: string, alt: string): void {
 }
 
 $(document).ready(() => {
+	$('.modal-outer').click(function () {
+		$(this).hide();
+	});
+	$('#add-to-folders').click(() => {
+		if (focusedSearchImage) {
+			filesystem.push({
+				type: "image",
+				name: focusedSearchImage.filename,
+				filename: focusedSearchImage.filename,
+				// contents: undefined,
+			});
+		};
+		rerenderFilesystem();
+		$('#search-modal').hide();
+	});
 	$('#new-image-button').click(() => {
 		const $addViewer = $('#add-to-layout-viewer');
 		renderFiles(filesystem, $addViewer, "You haven't added any images yet!", (node) => {
