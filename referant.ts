@@ -21,7 +21,7 @@ function makeFolder() {
 	return $div;
 }
 $('#new-folder-button').click(function () {
-	$('.main-folders').append(makeFolder());
+	$('.folder-display').append(makeFolder());
 });
 $('.layout-img').draggable();
 $('.layout-img').resizable({
@@ -85,6 +85,7 @@ function makeFilter(name: string) {
 		})
 	}
 }
+
 function addImage(filename: string, alt: string): void {
 	const $img = $('<div>');
 	$img.addClass('layout-image');
@@ -111,6 +112,7 @@ function addImage(filename: string, alt: string): void {
 	});
 	$('.layout-area').append($img);
 }
+
 $(document).ready(() => {
 	$('#new-image-button').click(() => {
 		addImage(`dog${Math.floor(Math.random() * 6) + 1}.jpg`, "dog");

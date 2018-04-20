@@ -70,8 +70,8 @@ body {
 	display: none;
 }
 .folder-display{
-	display:grid;
-	grid-template-columns: repeat(4, 1fr);
+	display: grid;
+	grid-template-columns: repeat(auto-fill, 100px);
   	grid-gap: 10px;
   	grid-auto-rows: minmax(100px, auto)
 }
@@ -101,7 +101,9 @@ input.search-query {
 	font-size: 125%;
 }
 .folder { 
-	display: inline-block; 
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 .folder img {
 	width: 4em;
