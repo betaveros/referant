@@ -2,6 +2,7 @@ body {
 	font-family: sans-serif;
 	margin: 0; padding: 0;
 	background-color:hsl(212,14%,34%);
+    color:white;
 }
 .logo {
 	width: 100%;
@@ -37,8 +38,9 @@ body {
 	padding: .5em;
 }
 .sidebar > * > img {
-    filter:invert(1);
-    width: 30px;
+	filter: invert(1);
+	width: 30px;
+	vertical-align: middle;
 }
 .sidebar > *:hover {
 	background-color: hsl(212,14%,34%);
