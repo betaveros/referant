@@ -204,3 +204,5 @@ input.folder-name {
 #triangle {
 	text-align: right;
 }
+
+.folder-display.dialog { display: none; }

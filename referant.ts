@@ -110,7 +110,7 @@ interface FileNode {
 let filesystem: FileNode[] = [];
 let filesystemPath: string[] = [];
 
-function getCurrentNode() {
+function getCurrentNodes(): FileNode[] {
 	let cur = filesystem;
 	for (const pathComponent of filesystemPath) {
 		let success = false;
@@ -245,16 +245,27 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 	return image[filter.key].indexOf(filter.value) !== -1;
 }
 
-function rerenderFilesystem() {
-	$('#filesystem-viewer').empty();
-	for (const node of filesystem) {
-		if (node.type === 'folder') {
-			$('#filesystem-viewer').append(makeFolder(node.name));
-		} else {
-			$('#filesystem-viewer').append($('<img/>', {
-				src: node.filename,
-			}));
+function rerenderFilesystem(): void {
+	renderFiles(filesystem, $('#filesystem-viewer'));
+}
+function renderFiles(files: FileNode[], $target: JQuery, emptyMsg?: string, callback?: (FileNode) => void): void {
+	$target.empty();
+	if (files.length) {
+		for (const node of files) {
+			if (node.type === 'folder') {
+				$target.append(makeFolder(node.name));
+			} else {
+				const $img = $('<img/>', {
+					src: node.filename,
+				});
+				if (callback) {
+					$img.click(() => callback(node));
+				}
+				$target.append($img);
+			}
 		}
+	} else {
+		$target.text(emptyMsg);
 	}
 }
 
@@ -359,7 +370,13 @@ function addImage(filename: string, alt: string): void {
 
 $(document).ready(() => {
 	$('#new-image-button').click(() => {
-		const index = Math.floor(Math.random() * images.length);
-		addImage(images[index].filename, images[index].keywords[0]);
+		const $addViewer = $('#add-to-layout-viewer');
+		renderFiles(filesystem, $addViewer, "You haven't added any images yet!", (node) => {
+			if (node.type === 'image') {
+				addImage(node.filename, node.name);
+			}
+			$addViewer.hide();
+		});
+		$addViewer.show();
 	});
 });
