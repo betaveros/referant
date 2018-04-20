@@ -85,3 +85,46 @@ input.search-query {
 	border: 1px solid #036;
 	background-color: #9cf;
 }
+.color-select {
+	display: inline-grid;
+	grid-template-rows: 2em 2em 2em;
+	grid-template-columns: 2em 2em 2em;
+	border-right: 1px solid black;
+	border-bottom: 1px solid black;
+}
+.color-select button {
+	border: none;
+	border-left: 1px solid black;
+	border-top: 1px solid black;
+}
+.color-select button:hover {
+	filter: brightness(110%);
+}
+
+.red-selector {
+	background-color: red;
+}
+.yellow-selector {
+	background-color: yellow;
+}
+.blue-selector {
+	background-color: blue;
+}
+.green-selector {
+	background-color: green;
+}
+.purple-selector {
+	background-color: purple;
+}
+.orange-selector {
+	background-color: orange;
+}
+.white-selector {
+	background-color: white;
+}
+.gray-selector {
+	background-color: gray;
+}
+.black-selector {
+	background-color: black;
+}
