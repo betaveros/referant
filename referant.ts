@@ -38,6 +38,21 @@ const images: Image[] = [
 		keywords: ['dog'],
 		colors: ['orange', 'white'],
 	},
+	{
+		filename: 'dog7.jpg',
+		keywords: ['lizard', 'iguana'],
+		colors: ['green']
+	},
+	{
+		filename: 'dog8.jpg',
+		keywords: ['cat'],
+		colors: ['gray', 'blue'],
+	}
+	{
+		filename: 'pond.jpg',
+		keywords: ['pond', 'water'],
+		colors: ['blue', 'green'],
+	}
 ];
 
 $('.nav-tab').click(function () {
@@ -81,6 +96,13 @@ $('#color-activate').click(function () {
         $('#color-select').hide();
     }
 });
+
+interface Folder {
+	key: string;
+	name: string;
+	element: JQuery;
+	textbox: JQuery;
+}
 
 interface Filter {
 	key: string;
@@ -134,10 +156,10 @@ function makeFilter(key: string, name: string) {
 	console.log(activeFilters);
 	if(activeFilters.has(name)) {
 		const item = activeFilters.get(name)
-		item.addClass('attention');
-		item.on('animationend', function (e) {
+		item.element.addClass('attention');
+		item.element.on('animationend', function (e) {
 			if(e.originalEvent.animationName === 'attention') {
-				item.removeClass('attention');
+				item.element.removeClass('attention');
 			}
 		})
 	} else {
@@ -193,6 +215,6 @@ function addImage(filename: string, alt: string): void {
 
 $(document).ready(() => {
 	$('#new-image-button').click(() => {
-		addImage(`dog${Math.floor(Math.random() * 6) + 1}.jpg`, "dog");
+		addImage(images[Math.floor(Math.random() * images.length)].filename, "dog");
 	});
 });
