@@ -272,7 +272,7 @@ function renderFiles(files: FileNode[], $target: JQuery, emptyMsg?: string, call
 function updateSearchResults() {
 	$('#search-results').empty();
 	const query = $('#search-query').val();
-	for (const image of images) {
+	if(query !== '' || activeFilters.size !== 0) for (const image of images) {
 		if (matchesQuery(image, query.toString()) &&
 			Array.from(activeFilters.values()).every((filter) =>
 				matchesFilter(image, filter))) {
