@@ -123,7 +123,10 @@ input.search-query {
 .color-select button:hover {
 	filter: brightness(110%);
 }
-
+#filterlist{
+	display: flex;
+	direction:row;
+}
 .red-selector {
 	background-color: red;
 }
