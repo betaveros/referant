@@ -310,7 +310,11 @@ function renderFiles(files: FileNode[], $target: JQuery, emptyMsg?: string, call
 			}
 		}
 	} else {
-		$target.text(emptyMsg);
+		const $msgDiv = $('<div>', {
+			'class': 'folder-full-msg',
+		});
+		$msgDiv.text(emptyMsg);
+		$target.append($msgDiv);
 	}
 }
 

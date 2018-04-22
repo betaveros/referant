@@ -86,6 +86,9 @@ body {
   	grid-gap: 10px;
   	grid-auto-rows: minmax(100px, auto)
 }
+.folder-full-msg {
+	grid-column: 1 / span 100;
+}
 .btn {
 	font-size: 100%;
 	border-width: 0;
