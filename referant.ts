@@ -5,6 +5,7 @@ interface Image {
 	filename: string;
 	keywords: string[];
 	colors: string[];
+	view?: string[],
 }
 
 const images: Image[] = [
@@ -12,36 +13,43 @@ const images: Image[] = [
 		filename: 'dog1.jpg',
 		keywords: ['dog'],
 		colors: ['white', 'black'],
+		view: ['side'],
 	},
 	{
 		filename: 'dog2.jpg',
 		keywords: ['dog'],
 		colors: ['orange'],
+		view: ['front'],
 	},
 	{
 		filename: 'dog3.jpg',
 		keywords: ['dog'],
 		colors: ['orange'],
+		view: ['front'],
 	},
 	{
 		filename: 'dog4.jpg',
 		keywords: ['dog'],
 		colors: ['black'],
+		view: ['back'],
 	},
 	{
 		filename: 'dog5.jpg',
 		keywords: ['dog'],
 		colors: ['orange', 'white'],
+		view: ['front'],
 	},
 	{
 		filename: 'dog6.jpg',
 		keywords: ['dog'],
 		colors: ['orange', 'white'],
+		view: ['side'],
 	},
 	{
 		filename: 'labrador.jpg',
 		keywords: ['dog', 'labrador'],
 		colors: ['yellow'],
+		view: ['front'],
 	},
 	{
 		filename: 'red-daisy.jpg',
@@ -57,26 +65,31 @@ const images: Image[] = [
 		filename: 'cardinal.jpg',
 		keywords: ['cardinal', 'bird'],
 		colors: ['red'],
+		view: ['side'],
 	},
 	{
 		filename: 'ducklings.jpg',
 		keywords: ['duck', 'bird'],
 		colors: ['yellow'],
+		view: ['side'],
 	},
 	{
 		filename: 'shark.jpg',
 		keywords: ['shark'],
 		colors: ['blue'],
+		view: ['side'],
 	},
 	{
 		filename: 'iguana.jpg',
 		keywords: ['lizard', 'iguana'],
-		colors: ['green']
+		colors: ['green'],
+		view: ['side'],
 	},
 	{
 		filename: 'cat.jpg',
 		keywords: ['cat'],
 		colors: ['gray', 'blue'],
+		view: ['front'],
 	},
 	{
 		filename: 'pond1.jpg',
@@ -96,7 +109,8 @@ const images: Image[] = [
 	{
 		filename: 'jelly.jpg',
 		keywords: ['jellyfish', 'jelly'],
-		colors: ['blue', 'orange']
+		colors: ['blue', 'orange'],
+		view: ['side'],
 	},
 	{
 		filename: 'cave-barbados.jpg',
@@ -259,22 +273,89 @@ interface SearchResult {
 interface Filter {
 	key: string;
 	value: string;
-	element: JQuery;
+	element?: JQuery;
 }
 
-const filterNames : string[] = ["red", "yellow", "blue", "green", "purple", "orange", "white", "gray", "black"];
+const colorFilterNames : string[] = ["red", "yellow", "blue", "green", "purple", "orange", "white", "gray", "black"];
+const viewFilterNames : string[] = ["front", "side", "back"];
+const licenseFilterNames : string[] = ["reuse", "public domain"];
 
 let activeFilters = new Map();
 
+function makeColorCheck(color?: string): JQuery {
+	const ret = $('<span>', {
+		'class': 'oi color-check',
+		'data-glyph': 'check',
+	});
+	if (color) ret.css('color', color);
+	return ret;
+}
+function makeRadioButton(name: string, label: string, callback: () => void, checked?: boolean): JQuery {
+	const id = name + '-' + label;
+	const $ret = $('<span>');
+	const $button = $('<input>', {
+		'type': 'radio',
+		'name': name,
+		'id': id,
+		'value': label,
+	});
+	if (checked) {
+		$button.prop('checked', true);
+	}
+	$button.change(callback);
+	const $label = $('<label>', {
+		'for': id,
+	});
+	$label.text(label);
+	$ret.append($button);
+	$ret.append($label);
+	return $ret;
+}
+
+const darkColors = ['black', 'blue', 'purple'];
 $(document).ready(function () {
-	const select = $('#color-select');
-	for(const filter of filterNames) {
+	const colorSelect = $('#color-select');
+	const anyColorButton = $(document.createElement('button'));
+	anyColorButton.addClass('any-color');
+	anyColorButton.addClass('color-selected');
+	anyColorButton.append(makeColorCheck());
+	anyColorButton.append('Any color');
+	anyColorButton.click(function () {
+		$('#color-select button').removeClass('color-selected');
+		anyColorButton.addClass('color-selected');
+		setColorFilter(undefined);
+	});
+	colorSelect.append(anyColorButton);
+	for(const filter of colorFilterNames) {
 		const button = $(document.createElement('button'));
+		button.append(makeColorCheck(darkColors.indexOf(filter) !== -1 ? 'white' : undefined));
 		button.css('background-color', filter);
 		button.click(function () {
-			makeFilter('colors', filter);
+			$('#color-select button').removeClass('color-selected');
+			button.addClass('color-selected');
+			setColorFilter(filter);
 		});
-		select.append(button);
+		colorSelect.append(button);
+	}
+	const updateViewCallback = () => {
+		setViewFilter($('#view-select input:checked').val());
+	};
+	const viewSelect = $('#view-select');
+	viewSelect.append('View:');
+	viewSelect.append(makeRadioButton('view', 'any', updateViewCallback, true));
+	for (const view of viewFilterNames) {
+		viewSelect.append(makeRadioButton('view', view, updateViewCallback));
+	}
+
+	const licenseViewCallback = () => {
+		// TODO
+		// setLicenseFilter($('#license-select input:checked').val());
+	};
+	const licenseSelect = $('#license-select');
+	licenseSelect.append('License:');
+	licenseSelect.append(makeRadioButton('license', 'any', licenseViewCallback, true));
+	for (const license of licenseFilterNames) {
+		licenseSelect.append(makeRadioButton('license', license, licenseViewCallback));
 	}
 });
 
@@ -287,7 +368,8 @@ function matchesQuery(image: Image, query0: string): boolean {
 	return false;
 }
 function matchesFilter(image: Image, filter: Filter): boolean {
-	return image[filter.key].indexOf(filter.value) !== -1;
+	let values: string[]|undefined = image[filter.key];
+	return values !== undefined && values.indexOf(filter.value) !== -1;
 }
 
 function rerenderFilesystem(): void {
@@ -310,22 +392,42 @@ function renderFiles(files: FileNode[], $target: JQuery, emptyMsg?: string, call
 			}
 		}
 	} else {
-		const $msgDiv = $('<div>', {
-			'class': 'folder-full-msg',
-		});
-		$msgDiv.text(emptyMsg);
-		$target.append($msgDiv);
+		if (emptyMsg) {
+			const $msgDiv = $('<div>', {
+				'class': 'folder-full-msg',
+			});
+			$msgDiv.text(emptyMsg);
+			$target.append($msgDiv);
+		}
 	}
 }
 
 let focusedSearchImage: Image = undefined;
 
+function getAllActiveFilters(): Filter[] {
+	const filters = Array.from(activeFilters.values());
+	if (colorFilter !== undefined) {
+		filters.push({
+			key: 'colors',
+			value: colorFilter,
+		});
+	}
+	if (viewFilterNames !== undefined) {
+		filters.push({
+			key: 'view',
+			value: viewFilter,
+		});
+	}
+	return filters;
+}
+
 function updateSearchResults() {
 	$('#search-results').empty();
 	const query = $('#search-query').val();
-	if(query !== '' || activeFilters.size !== 0) for (const image of images) {
+	const allActiveFilters = getAllActiveFilters();
+	if(query !== '' || allActiveFilters.length !== 0) for (const image of images) {
 		if (matchesQuery(image, query.toString()) &&
-			Array.from(activeFilters.values()).every((filter) =>
+			allActiveFilters.every((filter) =>
 				matchesFilter(image, filter))) {
 			const $img = $('<img/>', {
 				src: image.filename,
@@ -343,6 +445,17 @@ function updateSearchResults() {
 }
 
 $('#search-query').keyup(updateSearchResults);
+
+let colorFilter: string|undefined = undefined;
+let viewFilter: string|undefined = undefined;
+function setColorFilter(filter: string|undefined) {
+	colorFilter = filter;
+	updateSearchResults();
+}
+function setViewFilter(filter: string|undefined) {
+	viewFilter = filter;
+	updateSearchResults();
+}
 
 function makeFilter(key: string, name: string) {
 	if(activeFilters.has(name)) {

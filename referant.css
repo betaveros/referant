@@ -154,18 +154,46 @@ input.folder-name {
 }
 .color-select {
 	display: inline-grid;
-	grid-template-rows: 2em 2em 2em;
+	grid-template-rows: 2em 2em 2em 2em;
 	grid-template-columns: 2em 2em 2em;
 	border-right: 1px solid black;
 	border-bottom: 1px solid black;
+}
+.color-select button.any-color {
+	grid-column: 1 / span 3;
+	background-image: linear-gradient(
+	to right,
+	hsl(  0, 80%, 90%) 0%,
+	hsl( 36, 80%, 90%) 10%,
+	hsl( 72, 80%, 90%) 20%,
+	hsl(108, 80%, 90%) 30%,
+	hsl(144, 80%, 90%) 40%,
+	hsl(180, 80%, 90%) 50%,
+	hsl(216, 80%, 90%) 60%,
+	hsl(252, 80%, 90%) 70%,
+	hsl(288, 80%, 90%) 80%,
+	hsl(324, 80%, 90%) 90%
+	);
 }
 .color-select button {
 	border: none;
 	border-left: 1px solid black;
 	border-top: 1px solid black;
+	filter: brightness(95%);
 }
 .color-select button:hover {
 	filter: brightness(110%);
+}
+.color-select .color-check {
+	display: none;
+	font-size: 120%;
+}
+.color-select .color-selected .color-check {
+	display: inline;
+}
+.view-select, .license-select {
+	display: inline-flex;
+	flex-direction: column;
 }
 .attention {
 	animation: 0.5s attention;
