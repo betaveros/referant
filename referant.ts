@@ -6,6 +6,7 @@ interface Image {
 	keywords: string[];
 	colors: string[];
 	view?: string[],
+	license?: string[],
 }
 
 const images: Image[] = [
@@ -14,24 +15,28 @@ const images: Image[] = [
 		keywords: ['dog'],
 		colors: ['white', 'black'],
 		view: ['side'],
+		license: ['reuse', 'public domain'],
 	},
 	{
 		filename: 'dog2.jpg',
 		keywords: ['dog'],
 		colors: ['orange'],
 		view: ['front'],
+		license: ['reuse'],
 	},
 	{
 		filename: 'dog3.jpg',
 		keywords: ['dog'],
 		colors: ['orange'],
 		view: ['front'],
+		license: ['reuse', 'public domain'],
 	},
 	{
 		filename: 'dog4.jpg',
 		keywords: ['dog'],
 		colors: ['black'],
 		view: ['back'],
+		license: ['reuse'],
 	},
 	{
 		filename: 'dog5.jpg',
@@ -55,11 +60,13 @@ const images: Image[] = [
 		filename: 'red-daisy.jpg',
 		keywords: ['daisy', 'flower'],
 		colors: ['red'],
+		license: ['reuse'],
 	},
 	{
 		filename: 'purple-flowers.jpg',
 		keywords: ['flower'],
 		colors: ['purple'],
+		license: ['reuse'],
 	},
 	{
 		filename: 'cardinal.jpg',
@@ -78,6 +85,7 @@ const images: Image[] = [
 		keywords: ['shark'],
 		colors: ['blue'],
 		view: ['side'],
+		license: ['reuse'],
 	},
 	{
 		filename: 'iguana.jpg',
@@ -99,12 +107,14 @@ const images: Image[] = [
 	{
 		filename: 'lava.jpeg',
 		keywords: ['lava'],
-		colors: ['red', 'gray']
+		colors: ['red', 'gray'],
+		license: ['reuse'],
 	},
 	{
 		filename: 'forest.jpg',
 		keywords: ['forest'],
 		colors: ['green']
+		license: ['reuse', 'public domain'],
 	},
 	{
 		filename: 'jelly.jpg',
@@ -115,7 +125,8 @@ const images: Image[] = [
 	{
 		filename: 'cave-barbados.jpg',
 		keywords: ['cave', 'barbados'],
-		colors: ['orange']
+		colors: ['orange'],
+		license: ['reuse', 'public domain'],
 	},
 	{
 		filename: 'limestone-cave.jpg',
@@ -125,7 +136,8 @@ const images: Image[] = [
 	{
 		filename: 'punkva-cave.jpg',
 		keywords: ['cave'],
-		colors: ['white', 'orange']
+		colors: ['white', 'orange'],
+		license: ['reuse', 'public domain'],
 	},
 	{
 		filename: 'sea-cave.jpg',
@@ -135,7 +147,8 @@ const images: Image[] = [
 	{
 		filename: 'stone-cave.jpg',
 		keywords: ['stone', 'cave', 'vines'],
-		colors: ['green', 'gray']
+		colors: ['green', 'gray'],
+		license: ['reuse', 'public domain'],
 	},
 	{
 		filename: 'sunset-cave.jpg',
@@ -145,7 +158,8 @@ const images: Image[] = [
 	{
 		filename: 'sunset.jpg',
 		keywords: ['sunset', 'view'],
-		colors: ['purple']
+		colors: ['purple'],
+		license: ['reuse'],
 	},
 	{
 		filename: 'wheat-hills.jpg',
@@ -155,7 +169,8 @@ const images: Image[] = [
 	{
 		filename: 'moon.jpg',
 		keywords: ['moon', 'night', 'sky', 'astronomy'],
-		colors: ['gray']
+		colors: ['gray'],
+		license: ['reuse'],
 	}
 ];
 
@@ -338,7 +353,8 @@ $(document).ready(function () {
 		colorSelect.append(button);
 	}
 	const updateViewCallback = () => {
-		setViewFilter($('#view-select input:checked').val());
+		const val = $('#view-select input:checked').val();
+		setViewFilter(val === 'any' ? undefined : val);
 	};
 	const viewSelect = $('#view-select');
 	viewSelect.append('View:');
@@ -348,8 +364,8 @@ $(document).ready(function () {
 	}
 
 	const licenseViewCallback = () => {
-		// TODO
-		// setLicenseFilter($('#license-select input:checked').val());
+		const val = $('#license-select input:checked').val();
+		setLicenseFilter(val === 'any' ? undefined : val);
 	};
 	const licenseSelect = $('#license-select');
 	licenseSelect.append('License:');
@@ -412,10 +428,16 @@ function getAllActiveFilters(): Filter[] {
 			value: colorFilter,
 		});
 	}
-	if (viewFilterNames !== undefined) {
+	if (viewFilter !== undefined) {
 		filters.push({
 			key: 'view',
 			value: viewFilter,
+		});
+	}
+	if (licenseFilter !== undefined) {
+		filters.push({
+			key: 'license',
+			value: licenseFilter,
 		});
 	}
 	return filters;
@@ -448,12 +470,17 @@ $('#search-query').keyup(updateSearchResults);
 
 let colorFilter: string|undefined = undefined;
 let viewFilter: string|undefined = undefined;
+let licenseFilter: string|undefined = undefined;
 function setColorFilter(filter: string|undefined) {
 	colorFilter = filter;
 	updateSearchResults();
 }
 function setViewFilter(filter: string|undefined) {
 	viewFilter = filter;
+	updateSearchResults();
+}
+function setLicenseFilter(filter: string|undefined) {
+	licenseFilter = filter;
 	updateSearchResults();
 }
 
