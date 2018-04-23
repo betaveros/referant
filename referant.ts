@@ -348,8 +348,9 @@ function makeFilter(key: string, name: string) {
 		const thing = $(document.createElement('div'));
 		const x = $(document.createElement('button'));
 		x.addClass('btn');
-		x.text('x');
+		x.html('&times;');
 		const writing = $(document.createElement('span'));
+		writing.addClass('filter-label');
 		writing.text(name);
 		thing.append(x);
 		thing.append(writing);
