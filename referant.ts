@@ -113,7 +113,7 @@ const images: Image[] = [
 	{
 		filename: 'forest.jpg',
 		keywords: ['forest'],
-		colors: ['green']
+		colors: ['green'],
 		license: ['reuse', 'public domain'],
 	},
 	{
@@ -270,15 +270,9 @@ $('.layout-img').resizable({
 		'se': '.ui-resizable-se',
 	}
 });
-let colorVisible = true;
-$('#color-activate').click(function () {
-	colorVisible = !colorVisible;
-    if (colorVisible) {
-        $('#color-select').show();
-    } else {
-        $('#color-select').hide();
-    }
-});
+$('#color-activate').click(() => $('#color-select').toggle());
+$('#view-activate').click(() => $('#view-select').toggle());
+$('#license-activate').click(() => $('#license-select').toggle());
 
 interface SearchResult {
 	element: JQuery;
@@ -334,7 +328,7 @@ $(document).ready(function () {
 	anyColorButton.addClass('any-color');
 	anyColorButton.addClass('color-selected');
 	anyColorButton.append(makeColorCheck());
-	anyColorButton.append('Any color');
+	anyColorButton.append('Any');
 	anyColorButton.click(function () {
 		$('#color-select button').removeClass('color-selected');
 		anyColorButton.addClass('color-selected');
@@ -353,22 +347,20 @@ $(document).ready(function () {
 		colorSelect.append(button);
 	}
 	const updateViewCallback = () => {
-		const val = $('#view-select input:checked').val();
+		const val = $('#view-select input:checked').val().toString();
 		setViewFilter(val === 'any' ? undefined : val);
 	};
 	const viewSelect = $('#view-select');
-	viewSelect.append('View:');
 	viewSelect.append(makeRadioButton('view', 'any', updateViewCallback, true));
 	for (const view of viewFilterNames) {
 		viewSelect.append(makeRadioButton('view', view, updateViewCallback));
 	}
 
 	const licenseViewCallback = () => {
-		const val = $('#license-select input:checked').val();
+		const val = $('#license-select input:checked').val().toString();
 		setLicenseFilter(val === 'any' ? undefined : val);
 	};
 	const licenseSelect = $('#license-select');
-	licenseSelect.append('License:');
 	licenseSelect.append(makeRadioButton('license', 'any', licenseViewCallback, true));
 	for (const license of licenseFilterNames) {
 		licenseSelect.append(makeRadioButton('license', license, licenseViewCallback));
@@ -418,7 +410,7 @@ function renderFiles(files: FileNode[], $target: JQuery, emptyMsg?: string, call
 	}
 }
 
-let focusedSearchImage: Image = undefined;
+let focusedSearchImage: Image|undefined = undefined;
 
 function getAllActiveFilters(): Filter[] {
 	const filters = Array.from(activeFilters.values());
@@ -473,14 +465,17 @@ let viewFilter: string|undefined = undefined;
 let licenseFilter: string|undefined = undefined;
 function setColorFilter(filter: string|undefined) {
 	colorFilter = filter;
+	$('#color-activate').text('Color: ' + (colorFilter || 'any'));
 	updateSearchResults();
 }
 function setViewFilter(filter: string|undefined) {
 	viewFilter = filter;
+	$('#view-activate').text('View: ' + (viewFilter || 'any'));
 	updateSearchResults();
 }
 function setLicenseFilter(filter: string|undefined) {
 	licenseFilter = filter;
+	$('#license-activate').text('License: ' + (licenseFilter || 'any'));
 	updateSearchResults();
 }
 

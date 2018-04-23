@@ -152,6 +152,41 @@ input.folder-name {
 .layout-area-selected .ui-resizable-handle {
 	display: block;
 }
+.filter-bar {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+}
+.filter-bar .search-query {
+	flex-grow: 1;
+}
+.filter-bar .btn {
+	margin: 0 0 0.5em;
+	min-width: 8em;
+}
+.filter-bar > div {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-left: 0.5em;
+}
+@media only screen and (max-width: 800px) {
+	.filter-bar {
+		display: grid;
+		grid-gap: 0.5em;
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+	.filter-bar .search-query {
+		grid-column: 1 / span 3;
+	}
+	.filter-bar .btn {
+		width: 100%;
+		min-width: auto;
+	}
+	.filter-bar > div {
+		margin-left: 0;
+	}
+}
 .color-select {
 	display: inline-grid;
 	grid-template-rows: 2em 2em 2em 2em;

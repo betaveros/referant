@@ -43,14 +43,24 @@
 			<div class="dialog" id="search-dialog">
 				<div id="header-dialog"> Search <span id="triangle"> &#x25B2; </span>  </div>
 				<div id="main-dialog">
-					<input type="text" class="search-query" id="search-query" placeholder="Dog">
-					<button class="btn color-activate" id="color-activate">color </button>
-					<span class="color-select" id="color-select">
-					</span>
-					<span class="view-select" id="view-select">
-					</span>
-					<span class="license-select" id="license-select">
-					</span>
+					<div class="filter-bar">
+						<input type="text" class="search-query" id="search-query" placeholder="Dog">
+						<div id="color-select-outer">
+							<button class="btn" id="color-activate">Color: any</button>
+							<span class="color-select" id="color-select">
+							</span>
+						</div>
+						<div id="view-select-outer">
+							<button class="btn" id="view-activate">View: any</button>
+							<span class="view-select" id="view-select">
+							</span>
+						</div>
+						<div id="license-select-outer">
+							<button class="btn" id="license-activate">License: any</button>
+							<span class="license-select" id="license-select">
+							</span>
+						</div>
+					</div>
 					<div id="search-results" class="search-results">
 					</div>
 				</div>
@@ -83,7 +93,7 @@
 	</main>
 	<script
 		src="jquery/jquery-3.3.1.min.js"
-	></script>
+		></script>
 	<script src="jquery/jquery-ui.min.js"></script>
 	<script src="referant.js"></script>
 </body>
