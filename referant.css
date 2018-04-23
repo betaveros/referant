@@ -91,6 +91,9 @@ body {
   	grid-gap: 10px;
   	grid-auto-rows: minmax(100px, auto)
 }
+.folder-full-msg {
+	grid-column: 1 / span 100;
+}
 .btn {
 	font-size: 100%;
 	border-width: 0;
@@ -104,6 +107,11 @@ body {
 }
 .btn:hover {
 	background-color: #057;
+}
+.btn.btn-path {
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
 }
 .dialog {
 	color: black;
@@ -154,20 +162,83 @@ input.folder-name {
 .layout-area-selected .ui-resizable-handle {
 	display: block;
 }
+.filter-bar {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+}
+.filter-bar .search-query {
+	flex-grow: 1;
+}
+.filter-bar .btn {
+	margin: 0 0 0.5em;
+	min-width: 8em;
+}
+.filter-bar > div {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-left: 0.5em;
+}
+@media only screen and (max-width: 800px) {
+	.filter-bar {
+		display: grid;
+		grid-gap: 0.5em;
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+	.filter-bar .search-query {
+		grid-column: 1 / span 3;
+	}
+	.filter-bar .btn {
+		width: 100%;
+		min-width: auto;
+	}
+	.filter-bar > div {
+		margin-left: 0;
+	}
+}
 .color-select {
 	display: inline-grid;
-	grid-template-rows: 2em 2em 2em;
+	grid-template-rows: 2em 2em 2em 2em;
 	grid-template-columns: 2em 2em 2em;
 	border-right: 1px solid black;
 	border-bottom: 1px solid black;
+}
+.color-select button.any-color {
+	grid-column: 1 / span 3;
+	background-image: linear-gradient(
+	to right,
+	hsl(  0, 80%, 90%) 0%,
+	hsl( 36, 80%, 90%) 10%,
+	hsl( 72, 80%, 90%) 20%,
+	hsl(108, 80%, 90%) 30%,
+	hsl(144, 80%, 90%) 40%,
+	hsl(180, 80%, 90%) 50%,
+	hsl(216, 80%, 90%) 60%,
+	hsl(252, 80%, 90%) 70%,
+	hsl(288, 80%, 90%) 80%,
+	hsl(324, 80%, 90%) 90%
+	);
 }
 .color-select button {
 	border: none;
 	border-left: 1px solid black;
 	border-top: 1px solid black;
+	filter: brightness(95%);
 }
 .color-select button:hover {
 	filter: brightness(110%);
+}
+.color-select .color-check {
+	display: none;
+	font-size: 120%;
+}
+.color-select .color-selected .color-check {
+	display: inline;
+}
+.view-select, .license-select {
+	display: inline-flex;
+	flex-direction: column;
 }
 .attention {
 	animation: 0.5s attention;

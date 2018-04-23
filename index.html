@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Referant</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="open-iconic/font/css/open-iconic.min.css">
 <link rel="stylesheet" href="jquery/jquery-ui.min.css">
 <link rel="stylesheet" href="jquery/jquery-ui.structure.min.css">
 <link rel="stylesheet" href="jquery/jquery-ui.theme.min.css">
@@ -42,12 +43,23 @@
 			<div class="dialog" id="search-dialog">
 				<div id="header-dialog"> Search <span id="triangle"> &#x25B2; </span>  </div>
 				<div id="main-dialog">
-					<input type="text" class="search-query" id="search-query" placeholder="Dog">
-					<button class="btn color-activate" id="color-activate">color </button>
-					<span class="color-select" id="color-select">
-					</span>
-					<div id="filterlist" class="filterlist">
-					
+					<div class="filter-bar">
+						<input type="text" class="search-query" id="search-query" placeholder="Dog">
+						<div id="color-select-outer">
+							<button class="btn" id="color-activate">Color: any</button>
+							<span class="color-select" id="color-select">
+							</span>
+						</div>
+						<div id="view-select-outer">
+							<button class="btn" id="view-activate">View: any</button>
+							<span class="view-select" id="view-select">
+							</span>
+						</div>
+						<div id="license-select-outer">
+							<button class="btn" id="license-activate">License: any</button>
+							<span class="license-select" id="license-select">
+							</span>
+						</div>
 					</div>
 					<div id="search-results" class="search-results">
 					</div>
@@ -56,6 +68,9 @@
 			<div class = "the-rest-of-it">
 				<button class="btn" id="new-folder-button">New Folder</button>
 				<input id="folder-name" class="folder-name" type="text" placeholder="Folder Name" />
+				<div id="filesystem-path-outer">Current location:
+					<span id="filesystem-path"></span>
+				</div>
 				<div class = "folder-display" id="filesystem-viewer">
 				</div>
 			</div>
@@ -73,7 +88,12 @@
 		<div class="main-tab main-layout">
 			<h2>Layout</h2>
 			<button class="btn" id="new-image-button">Add image</button>
-			<div class="folder-display dialog dialog-padded" id="add-to-layout-viewer">
+			<div class="dialog dialog-padded" id="add-viewer-outer">
+				<div id="add-viewer-path-outer">Current location:
+					<span id="add-viewer-path"></span>
+				</div>
+				<div class="folder-display" id="add-viewer">
+				</div>
 			</div>
 			<div class="layout-area">
 			</div>
@@ -81,7 +101,7 @@
 	</main>
 	<script
 		src="jquery/jquery-3.3.1.min.js"
-	></script>
+		></script>
 	<script src="jquery/jquery-ui.min.js"></script>
 	<script src="referant.js"></script>
 </body>
