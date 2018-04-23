@@ -237,7 +237,7 @@ $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
 
-function makeFolder(name: string) : JQuery {
+function makeFolder(name: string, callback: () => void) : JQuery {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
 	let $img = $(document.createElement('img'));
@@ -246,15 +246,23 @@ function makeFolder(name: string) : JQuery {
 	label.text(name);
 	$div.append($img);
 	$div.append(label);
+	$div.click(callback);
 	return $div;
 }
 $('#new-folder-button').click(function () {
 	const rawName = '' + $('#folder-name').val();
+	const nodesRef = getCurrentNodes();
 	$('#folder-name').val('');
-	const name = (rawName === '' ? 'New Folder' : rawName);
-	filesystem.push({
+	const nameBase = (rawName === '' ? 'New Folder' : rawName);
+	let curName = nameBase;
+	let i = 1;
+	while (nodesRef.some((e) => e.name === curName)) {
+		i += 1;
+		curName = nameBase + ' ' + i;
+	}
+	nodesRef.push({
 		type: 'folder',
-		name: name,
+		name: curName,
 		contents: [] as FileNode[],
 	});
 	rerenderFilesystem();
@@ -381,14 +389,38 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 }
 
 function rerenderFilesystem(): void {
-	renderFiles(filesystem, $('#filesystem-viewer'));
+	renderPath();
+	renderFiles(getCurrentNodes(), $('#filesystem-viewer'));
+}
+function renderPath(): void {
+	const $path = $('#filesystem-path');
+	$path.empty();
+	['Home'].concat(filesystemPath).forEach((e, i) => {
+		if (i === filesystemPath.length) {
+			$path.append(e);
+		} else {
+			const $button = $('<button>', {
+				'class': 'btn btn-path',
+			});
+			$button.text(e);
+			$button.click(() => {
+				filesystemPath = filesystemPath.slice(0, i);
+				rerenderFilesystem();
+			});
+			$path.append($button);
+			$path.append(' &raquo; ');
+		}
+	});
 }
 function renderFiles(files: FileNode[], $target: JQuery, emptyMsg?: string, callback?: (FileNode) => void): void {
 	$target.empty();
 	if (files.length) {
 		for (const node of files) {
 			if (node.type === 'folder') {
-				$target.append(makeFolder(node.name));
+				$target.append(makeFolder(node.name, () => {
+					filesystemPath.push(node.name);
+					rerenderFilesystem();
+				}));
 			} else {
 				const $img = $('<img/>', {
 					src: node.filename,
@@ -546,7 +578,8 @@ $(document).ready(() => {
 	});
 	$('#add-to-folders').click(() => {
 		if (focusedSearchImage) {
-			filesystem.push({
+			// wow such haxx
+			getCurrentNodes().push({
 				type: "image",
 				name: focusedSearchImage.filename,
 				filename: focusedSearchImage.filename,
@@ -566,4 +599,5 @@ $(document).ready(() => {
 		});
 		$addViewer.css('display', 'grid');
 	});
+	rerenderFilesystem();
 });
