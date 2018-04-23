@@ -279,9 +279,23 @@ $('.layout-img').resizable({
 		'se': '.ui-resizable-se',
 	}
 });
-$('#color-activate').click(() => $('#color-select').toggle());
-$('#view-activate').click(() => $('#view-select').toggle());
-$('#license-activate').click(() => $('#license-select').toggle());
+
+let colorActivated : bool = true;
+let viewActivated : bool = true;
+let licenseActivated : bool = true;
+
+$('#color-activate').click(() => {
+	$('#color-select-middle').toggleClass('filter-item');
+	$('#color-select').toggle();
+});
+$('#view-activate').click(() => {
+	$('#view-select-middle').toggleClass('filter-item');
+	$('#view-select').toggle();
+});
+$('#license-activate').click(() => {
+	$('#license-select-middle').toggleClass('filter-item');
+	$('#license-select').toggle();
+});
 
 interface SearchResult {
 	element: JQuery;

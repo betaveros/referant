@@ -178,23 +178,24 @@ input.folder-name {
 	display: block;
 }
 .filter-bar {
-	display: flex;
+	display: grid;
+	grid-template-columns: auto repeat(3, 9em);
+	height: 2em;
+	grid-template-rows: 2em auto;
+	grid-gap: .5em;
 	flex-direction: row;
-	align-items: baseline;
 }
 .filter-bar .search-query {
 	flex-grow: 1;
 }
 .filter-bar .btn {
-	margin: 0 0 0.5em;
+	margin: 0;
 	min-width: 8em;
 }
 .filter-bar > div {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin-left: 0.5em;
+	z-index: 1;
 }
+
 @media only screen and (max-width: 800px) {
 	.filter-bar {
 		display: grid;
@@ -212,6 +213,21 @@ input.folder-name {
 		margin-left: 0;
 	}
 }
+
+.filter-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border: solid 1px black;
+	background-color: silver;
+	padding: .5em;
+	border-radius: .5em;
+}
+
+#color-select-outer {
+	grid-column: 2;
+}
+
 .color-select {
 	display: inline-grid;
 	grid-template-rows: 2em 2em 2em 2em;
@@ -278,6 +294,16 @@ input.folder-name {
 	grid-template-rows: repeat(auto-fill, 12em);
 }
 
+.filter-results {
+	height: 0;
+	z-index: 1;
+}
+
+.filter-results > * {
+	background-color: gray;
+	padding: 0.5em;
+	border-radius: 5px;
+}
 .search-results img {
 	width: 12em;
 	height: 12em;
