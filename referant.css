@@ -148,6 +148,21 @@ input.folder-name {
 	width: 100%;
 	height: 100%;
 }
+.layout-image .close {
+	display: none;
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	margin: 0;
+	font-size: 75%;
+	background-color: #c00;
+}
+.layout-image .close:hover {
+	background-color: #f00;
+}
+.layout-image.layout-area-selected .close, .layout-image:hover .close {
+	display: block;
+}
 .ui-resizable-handle {
 	display: none;
 	border: 1px solid #036;

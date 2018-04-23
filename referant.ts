@@ -568,6 +568,15 @@ function makeFilter(key: string, name: string) {
 function addImage(filename: string, alt: string): void {
 	const $img = $('<div>');
 	$img.addClass('layout-image');
+	const $closeButton = $('<button>', {
+		'class': 'close btn',
+	});
+	const $closeIcon = $('<span>', {
+		'class': 'oi',
+		'data-glyph': 'x',
+	});
+	$closeButton.append($closeIcon);
+	$closeButton.click(() => $img.remove());
 	$img.append(`
 		<img src="${filename}" alt="${alt}">
 		<div class="ui-resizable-handle ui-resizable-nw" id="nwgrip"></div>
@@ -575,6 +584,7 @@ function addImage(filename: string, alt: string): void {
 		<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-se" id="segrip"></div>
 	`);
+	$img.append($closeButton);
 	$img.draggable();
 	$img.resizable({
 		aspectRatio: true,
