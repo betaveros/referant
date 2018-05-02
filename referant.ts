@@ -280,9 +280,9 @@ $('.layout-img').resizable({
 	}
 });
 
-let colorActivated : bool = true;
-let viewActivated : bool = true;
-let licenseActivated : bool = true;
+let colorActivated : boolean = true;
+let viewActivated : boolean = true;
+let licenseActivated : boolean = true;
 
 $('#color-activate').click(() => {
 	$('#color-select-middle').toggleClass('filter-item');
@@ -447,7 +447,7 @@ function renderPath(path, $path): void {
 		}
 	});
 }
-function renderFiles(path: FileNode[], $target: JQuery, emptyMsg?: string, callback?: (FileNode) => void): void {
+function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callback?: (FileNode) => void): void {
 	const files = getCurrentNodes(path);
 	$target.empty();
 	if (files.length) {
