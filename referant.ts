@@ -238,7 +238,8 @@ $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
 
-function makeFolder(name: string, callback: () => void) : JQuery {
+function makeFolder(name: string, callback: () => void,
+		closeCallback: () => void) : JQuery {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
 	let $img = $(document.createElement('img'));
@@ -247,6 +248,7 @@ function makeFolder(name: string, callback: () => void) : JQuery {
 	label.text(name);
 	$div.append($img);
 	$div.append(label);
+	$div.append(makeCloseButton(closeCallback));
 	$div.click(callback);
 	return $div;
 }
@@ -451,22 +453,32 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 	const files = getCurrentNodes(path);
 	$target.empty();
 	if (files.length) {
-		for (const node of files) {
+		files.forEach((node, i) => {
 			if (node.type === 'folder') {
 				$target.append(makeFolder(node.name, () => {
 					path.push(node.name);
 					rerenderFilesystem();
+				}, () => {
+					files.splice(i, 1);
+					rerenderFilesystem();
 				}));
 			} else {
+				const $div = $(document.createElement('div'));
+				$div.addClass('folder-image');
 				const $img = $('<img/>', {
 					src: node.filename,
 				});
+				$div.append($img);
+				$div.append(makeCloseButton(() => {
+					files.splice(i, 1);
+					rerenderFilesystem();
+				}));
 				if (callback) {
 					$img.click(() => callback(node));
 				}
-				$target.append($img);
+				$target.append($div);
 			}
-		}
+		});
 	} else {
 		if (emptyMsg) {
 			const $msgDiv = $('<div>', {
@@ -582,9 +594,7 @@ function makeFilter(key: string, name: string) {
 	}
 }
 
-function addImage(filename: string, alt: string): void {
-	const $img = $('<div>');
-	$img.addClass('layout-image');
+function makeCloseButton(callback: () => void): JQuery {
 	const $closeButton = $('<button>', {
 		'class': 'close btn',
 	});
@@ -593,7 +603,14 @@ function addImage(filename: string, alt: string): void {
 		'data-glyph': 'x',
 	});
 	$closeButton.append($closeIcon);
-	$closeButton.click(() => $img.remove());
+	$closeButton.click(callback);
+	return $closeButton;
+}
+
+function addImage(filename: string, alt: string): void {
+	const $img = $('<div>');
+	$img.addClass('layout-image');
+	const $closeButton = makeCloseButton(() => $img.remove());
 	$img.append(`
 		<img src="${filename}" alt="${alt}">
 		<div class="ui-resizable-handle ui-resizable-nw" id="nwgrip"></div>
