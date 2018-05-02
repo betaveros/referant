@@ -403,6 +403,7 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 	return values !== undefined && values.indexOf(filter.value) !== -1;
 }
 
+let addViewerShown : boolean = true;
 function rerenderFilesystem(): void {
 	rerenderFilesystemViewer(filesystemPath,
 		$('#filesystem-path'),
@@ -410,12 +411,14 @@ function rerenderFilesystem(): void {
 	rerenderFilesystemViewer(addViewerPath,
 		$('#add-viewer-path'),
 		$('#add-viewer'),
-		"You don't have any images in this folder you can add!",
+		"You don't have any images in this folder you can add! Go to Folders to find and add an image first.",
 		(node) => {
 			if (node.type === 'image') {
 				addImage(node.filename, node.name);
 			}
+			addViewerShown = false;
 			$('#add-viewer-outer').hide();
+			$('#new-image-triangle').html('&#x25BC;');
 		});
 }
 function rerenderFilesystemViewer(path: string[], $path: JQuery, $viewer: JQuery,
@@ -440,7 +443,7 @@ function renderPath(path, $path): void {
 				rerenderFilesystem();
 			});
 			$path.append($button);
-			$path.append(' &raquo; ');
+			$path.append(' / ');
 		}
 	});
 }
@@ -635,7 +638,14 @@ $(document).ready(() => {
 	});
 	$('#new-image-button').click(() => {
 		rerenderFilesystem();
-		$('#add-viewer-outer').show();
+		addViewerShown = !addViewerShown;
+		if(addViewerShown) {
+			$('#add-viewer-outer').show();
+			$('#new-image-triangle').html('&#x25B2;');
+		} else {
+			$('#add-viewer-outer').hide();
+			$('#new-image-triangle').html('&#x25BC;');
+		}
 	});
 	rerenderFilesystem();
 });
