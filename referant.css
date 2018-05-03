@@ -85,6 +85,7 @@ body {
 .main-folders, .main-layout {
 	display: none;
 }
+
 .folder-display{
 
 	display: grid;
@@ -165,6 +166,9 @@ input.folder-name {
 .folder:hover .close, .folder-image:hover .close, .layout-image.layout-area-selected .close, .layout-image:hover .close {
 	display: block;
 }
+#layout-help{
+	font-size: 1ex;
+}
 .ui-resizable-handle {
 	display: none;
 	border: 1px solid #036;
@@ -181,7 +185,7 @@ input.folder-name {
 }
 .filter-bar {
 	display: grid;
-	grid-template-columns: auto repeat(3, 9em);
+	grid-template-columns: auto repeat(3, 12em);
 	height: 2em;
 	grid-template-rows: 2em auto;
 	grid-gap: .5em;
@@ -272,6 +276,9 @@ input.folder-name {
 .view-select, .license-select {
 	display: inline-flex;
 	flex-direction: column;
+}
+.license-activate {
+	display: inline-block;
 }
 .attention {
 	animation: 0.5s attention;

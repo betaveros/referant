@@ -22,7 +22,7 @@
 		</div>
 		<div class="nav-tab" id="nav-layout" data-tab="main-layout">
 			<img src="layouts.png" alt="Layouts" class="logo">
-			Layouts
+			Layouts 
 		</div>
 	</nav>
 	<main class="content">
@@ -45,6 +45,7 @@
 				<div id="main-dialog">
 					<div class="filter-bar">
 						<input type="text" class="search-query" id="search-query" placeholder="Keyword, e.g. dog">
+
 						<button class="btn" id="color-activate">Color: any</button>
 						<button class="btn" id="view-activate">View: any</button>
 						<button class="btn" id="license-activate">License: any</button>
@@ -92,7 +93,9 @@
 			</div>
 		</div>
 		<div class="main-tab main-layout">
-			<h2>Layout</h2>
+			<h2 id="layout-title">Layout  <button class="btn" id="layout-help"><span class="oi" data-glyph="question-mark"></span></button></h2>
+			
+
 			<button class="btn" id="new-image-button">Add Image <span id="new-image-triangle">&#x25B2;</span></button>
 			<div class="dialog dialog-padded" id="add-viewer-outer">
 				<div id="add-viewer-path-outer">Current location:
