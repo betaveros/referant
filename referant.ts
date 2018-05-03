@@ -1,6 +1,7 @@
 /// <reference path ="jquery/jquery.d.ts"/>
 /// <reference path ="jquery/jquery-ui.d.ts"/>
 
+
 interface Image {
 	filename: string;
 	keywords: string[];
@@ -181,6 +182,7 @@ interface FileNode {
 	contents?: FileNode[];
 }
 
+let layout_counter = 0;
 let filesystem: FileNode[] = [];
 let filesystemPath: string[] = [];
 let addViewerPath: string[] = []
@@ -632,6 +634,9 @@ function addImage(filename: string, alt: string): void {
 	$img.mousedown(() => {
 		$('.layout-image').removeClass('layout-area-selected');
 		$img.addClass('layout-area-selected');
+		layout_counter+=1;
+		$img.css('z-index',layout_counter);
+
 	});
 	$('.layout-area').append($img);
 }

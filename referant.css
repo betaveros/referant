@@ -183,6 +183,7 @@ input.folder-name {
 .layout-area-selected .ui-resizable-handle {
 	display: block;
 }
+
 .filter-bar {
 	display: grid;
 	grid-template-columns: auto repeat(3, 12em);
