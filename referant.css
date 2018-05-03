@@ -226,6 +226,14 @@ input.folder-name {
 	border-radius: .5em;
 }
 
+.folder {
+	cursor: pointer;
+}
+
+.folder:hover {
+	background-color: rgba(255, 255, 255, .15);
+}
+
 #color-select-outer {
 	grid-column: 2;
 }
@@ -296,6 +304,10 @@ input.folder-name {
 	grid-template-rows: repeat(auto-fill, 12em);
 }
 
+.search-results > img :hover {
+	background-color: rgba(0, 0, 0, .15);
+}
+
 .filter-results {
 	height: 0;
 	z-index: 1;
@@ -306,10 +318,16 @@ input.folder-name {
 	padding: 0.5em;
 	border-radius: 5px;
 }
+
 .search-results img {
 	width: 12em;
 	height: 12em;
 	object-fit: contain;
+	cursor: pointer;
+}
+
+.search-results img:hover {
+	filter: brightness(115%);
 }
 
 .folder-display{
