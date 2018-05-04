@@ -175,7 +175,7 @@ const images: Image[] = [
 ];
 
 interface FileNode {
-	type: "image"|"folder";
+	type: "image"|"folder"|"userimage";
 	name: string;
 	filename?: string;
 	contents?: FileNode[];
@@ -255,17 +255,25 @@ function makeFolder(name: string, callback: () => void,
 $('#new-folder-button').click(function () {
 	const rawName = '' + $('#folder-name').val();
 	const nodesRef = getCurrentNodes(filesystemPath);
+	const errorText = $('#folder-name-error-text');
 	$('#folder-name').val('');
-	const nameBase = (rawName === '' ? 'New Folder' : rawName);
-	let curName = nameBase;
-	let i = 1;
-	while (nodesRef.some((e) => e.name === curName)) {
-		i += 1;
-		curName = nameBase + ' ' + i;
+	errorText.text('');
+	if(rawName === '') {
+		errorText.text('Please enter a name for the new folder.');
+		attend(errorText);
+		console.log('out 1');
+		return;
+	}
+	console.log(nodesRef);
+	if (nodesRef.some((e) => e.name === rawName)) {
+		errorText.text('That name is already taken; please enter a different name.');
+		attend(errorText);
+		console.log('out 2');
+		return;
 	}
 	nodesRef.push({
 		type: 'folder',
-		name: curName,
+		name: rawName,
 		contents: [] as FileNode[],
 	});
 	rerenderFilesystem();
@@ -559,15 +567,16 @@ function setLicenseFilter(filter: string|undefined) {
 	updateSearchResults();
 }
 
+function attend(element: JQuery) {
+	element.addClass('attention');
+	element.on('animationend', (e) => { if(e.originalEvent.animationName === 'attention') {element.removeClass('attention'); console.log('removed'); }})
+}
+
 function makeFilter(key: string, name: string) {
 	if(activeFilters.has(name)) {
 		const item = activeFilters.get(name)
 		item.element.addClass('attention');
-		item.element.on('animationend', function (e) {
-			if(e.originalEvent.animationName === 'attention') {
-				item.element.removeClass('attention');
-			}
-		})
+		attend(item.element);
 	} else {
 		const thing = $(document.createElement('div'));
 		const x = $(document.createElement('button'));
@@ -637,8 +646,8 @@ function addImage(filename: string, alt: string): void {
 }
 
 $(document).ready(() => {
-	$('.modal-outer').click(function () {
-		$(this).hide();
+	$('.modal-outer').click(function (e) {
+		if(e.target.id === 'modal-bg' || e.target.id === 'return-to-search') $(this).hide();
 	});
 	$('#add-to-folders').click(() => {
 		if (focusedSearchImage) {
