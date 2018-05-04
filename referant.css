@@ -411,6 +411,13 @@ input.folder-name {
 	text-align: right;
 }
 
+.layout-area {
+	position: relative;
+}
+.layout-image {
+	position: absolute;
+}
+
 .layout-area img {
 	border: 1px solid black;
 }

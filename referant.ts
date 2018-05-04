@@ -787,7 +787,24 @@ function makeCloseButton(callback: () => void): JQuery {
 	return $closeButton;
 }
 
+interface LayoutInfo {
+	x: number;
+	y: number;
+	w: number;
+	filename: string;
+	element: JQuery;
+}
+interface DragStatus {
+	x: number;
+	y: number;
+	key: number;
+}
+let layoutInfos: { [key: number]: LayoutInfo } = {};
+let nextLayoutInfoKey = 0;
+let dragging: DragStatus|undefined = undefined;
+
 function addImage(image: ImageNode): void {
+	const key = nextLayoutInfoKey++;
 	const $img = $('<div>');
 	$img.addClass('layout-image');
 	const $closeButton = makeCloseButton(() => $img.remove());
@@ -799,25 +816,53 @@ function addImage(image: ImageNode): void {
 		<div class="ui-resizable-handle ui-resizable-se" id="segrip"></div>
 	`);
 	$img.append($closeButton);
-	$img.draggable();
-	$img.resizable({
-		aspectRatio: true,
-		handles: {
-			'nw': '.ui-resizable-nw',
-			'ne': '.ui-resizable-ne',
-			'sw': '.ui-resizable-sw',
-			'se': '.ui-resizable-se',
-		}
-	});
-	$img.mousedown(() => {
+	$img.mousedown((event) => {
+		dragging = {
+			x: event.clientX as number,
+			y: event.clientY as number,
+			key: key,
+		};
 		$('.layout-image').removeClass('layout-area-selected');
 		$img.addClass('layout-area-selected');
 		layout_counter+=1;
 		$img.css('z-index',layout_counter);
-
+		event.preventDefault();
 	});
+	$img.mouseup((event) => {
+		if (dragging && dragging.key === key) {
+			let info = layoutInfos[key];
+			info.x += event.clientX - dragging.x;
+			info.y += event.clientY - dragging.y;
+			dragging = undefined;
+			// $img.css('transform', '');
+			event.preventDefault();
+		}
+	});
+	// $img.draggable();
+	// $img.resizable({
+	// 	aspectRatio: true,
+	// 	handles: {
+	// 		'nw': '.ui-resizable-nw',
+	// 		'ne': '.ui-resizable-ne',
+	// 		'sw': '.ui-resizable-sw',
+	// 		'se': '.ui-resizable-se',
+	// 	}
+	// });
 	$('.layout-area').append($img);
+	layoutInfos[key] = {
+		x: 0,
+		y: 0,
+		w: 0, // TODO
+		filename: image.filename,
+		element: $img,
+	};
 }
+$(document).mousemove((event) => {
+	if (!dragging) return;
+	console.log(event.clientX, event.clientY);
+	let info = layoutInfos[dragging.key];
+	info.element.css('transform', `translate(${info.x + event.clientX - dragging.x}px, ${info.y + event.clientY - dragging.y}px)`);
+});
 
 $(document).ready(() => {
 	$('.modal-outer').click(function (e) {
