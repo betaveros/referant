@@ -246,14 +246,14 @@ $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
 
-function makeFolderElement(name: string, callback: () => void,
+function makeFolderElement(folder: FolderNode, callback: () => void,
 		closeCallback: () => void) : JQuery {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
 	let $img = $(document.createElement('img'));
 	$img.attr('src', 'folders.png');
 	let label = $(document.createElement('span'));
-	label.text(name);
+	label.text(folder.name);
 	$div.append($img);
 	$div.append(label);
 	$div.append(makeCloseButton(closeCallback));
@@ -261,12 +261,22 @@ function makeFolderElement(name: string, callback: () => void,
 	$div.on('dragover', (event) => {
 		event.preventDefault();
 		(event.dataTransfer || event.originalEvent.dataTransfer).dropEffect = "move";
-		// var data = ev.dataTransfer.getData("text");
 		console.log('dragover');
+		return false;
 	});
 	$div.on('drop', (event) => {
-		event.preventDefault();
+		event.stopPropagation();
+		// event.preventDefault();
 		console.log('drop');
+		const dt = event.dataTransfer || event.originalEvent.dataTransfer;
+		let [path, i] = JSON.parse(dt.getData("text/plain"));
+		console.log(path, i);
+		let sourceFolder = getCurrentFolder(path);
+		let image = sourceFolder.images[i];
+		sourceFolder.images.splice(i, 1);
+		folder.images.push(image);
+		rerenderFilesystem();
+		return false;
 	});
 	return $div;
 }
@@ -472,13 +482,16 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 	folder.images.forEach((image, i) => {
 		folderEmpty = false;
 		const $div = $(document.createElement('div'));
-		$div.attr('draggable', true);
+		$div.attr('draggable', 'true');
+		// $div.prop('draggable', 'true');
 		// $div.prop('draggable', true);
-		$div.on('dragstart', (ev) => {
+		const dragdata = JSON.stringify([path, i]);
+		console.log(dragdata);
+		$div.on('dragstart', (event) => {
 			console.log('dragstart');
-			const dt = ev.dataTransfer || ev.originalEvent.dataTransfer;
-			dt.effectAllowed = "move";
-			dt.setData("text/plain", "TODO");
+			(event.dataTransfer || event.originalEvent.dataTransfer).effectAllowed = "move";
+			(event.dataTransfer || event.originalEvent.dataTransfer).setData("text/plain", dragdata);
+			console.log('end dragstart');
 		});
 		$div.addClass('folder-image');
 		const $img = $('<img/>', {
@@ -496,7 +509,7 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 	});
 	folder.folders.forEach((subfolder, i) => {
 		folderEmpty = false;
-		$target.append(makeFolderElement(subfolder.name, () => {
+		$target.append(makeFolderElement(subfolder, () => {
 			path.push(subfolder.name);
 			rerenderFilesystem();
 		}, () => {
