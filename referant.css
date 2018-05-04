@@ -20,7 +20,7 @@ body {
 	flex-direction: column;
     text-align: center;
     border-right: white 1px solid;
-    padding: 50px 0px 0px 0px;
+    padding: 50px 0px 20px 0px;
     user-select: none;
     -webkit-user-select: none;
 	/* justify-content: space-around; */
@@ -42,13 +42,19 @@ body {
 	width: 30px;
 	vertical-align: middle;
 }
-.sidebar > *:hover {
+.nav-tab, .about:hover {
+	cursor: pointer;
+}
+.nav-tab:hover, .about:hover {
 	background-color: hsl(212,14%,34%);
 }
 .sidebar > .nav-selected {
 	background-color: hsl(210,24%,25%);
 }
 .sidebar > .nav-selected img {
+}
+.sidebar .grow {
+	flex-grow: 1;
 }
 .content {
 	box-sizing: border-box;
@@ -183,6 +189,7 @@ input.folder-name {
 .layout-area-selected .ui-resizable-handle {
 	display: block;
 }
+
 .filter-bar {
 	display: grid;
 	grid-template-columns: auto repeat(3, 12em);
@@ -202,11 +209,21 @@ input.folder-name {
 	z-index: 1;
 }
 
-@media only screen and (max-width: 800px) {
+#color-select-outer {
+	/* a hilarious hack */
+	grid-column: 2;
+}
+
+@media only screen and (max-width: 1120px) {
 	.filter-bar {
 		display: grid;
 		grid-gap: 0.5em;
 		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-rows: 2em 2em auto;
+		height: 5em;
+	}
+	#color-select-outer {
+		grid-column: 1;
 	}
 	.filter-bar .search-query {
 		grid-column: 1 / span 3;
@@ -217,6 +234,20 @@ input.folder-name {
 	}
 	.filter-bar > div {
 		margin-left: 0;
+	}
+	.sidebar {
+		right: 0;
+		bottom: initial;
+		width: initial;
+		height: 4rem;
+		flex-direction: row;
+		padding: 0;
+		border-right: none;
+		border-bottom: 1px white solid;
+	}
+	.content {
+		margin: 0;
+		margin-top: 4rem;
 	}
 }
 
@@ -236,10 +267,6 @@ input.folder-name {
 
 .folder:hover {
 	background-color: rgba(255, 255, 255, .15);
-}
-
-#color-select-outer {
-	grid-column: 2;
 }
 
 .color-select {
@@ -303,16 +330,13 @@ input.folder-name {
 	display: flex;
 	direction: row;
 }
+
 .search-results {
 	margin-top: .5em;
 	display: grid;
 	grid-gap: .5em;
-	grid-template-columns: repeat(auto-fill, 12em);
+	grid-template-columns: repeat(auto-fill, minmax(12em, 1fr));
 	grid-template-rows: repeat(auto-fill, 12em);
-}
-
-.search-results > img :hover {
-	background-color: rgba(0, 0, 0, .15);
 }
 
 .filter-results {
@@ -327,7 +351,7 @@ input.folder-name {
 }
 
 .search-results img {
-	width: 12em;
+	width: 100%;
 	height: 12em;
 	object-fit: contain;
 	cursor: pointer;
@@ -339,13 +363,17 @@ input.folder-name {
 
 .folder-display{
 	display: grid;
-	grid-template-columns: repeat(auto-fill, 7em);
+	grid-template-columns: repeat(auto-fill, minmax(7em, 1fr));
   	grid-gap: .5em;
-  	grid-auto-rows: minmax(7em, auto)
+  	grid-auto-rows: repeat(auto-fill, 7em);
 }
 
 .folder-image {
 	position: relative;
+}
+.folder {
+	width: 7em;
+	height: 7em;
 }
 .folder-image img {
 	width: 7em;
@@ -353,17 +381,8 @@ input.folder-name {
 	object-fit: contain;
 }
 
-#header-dialog {
-	display: flex;
-	justify-content: space-between;
-	user-select: none;
-	-webkit-user-select: none;
-	padding: 1em;
-}
-
 #main-dialog {
 	padding: 1em;
-	padding-top: 0;
 }
 .dialog-padded {
 	padding: 1em;
@@ -371,6 +390,10 @@ input.folder-name {
 
 #triangle {
 	text-align: right;
+}
+
+.layout-area img {
+	border: 1px solid black;
 }
 
 .folder-display.dialog { display: none; }

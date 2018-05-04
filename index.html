@@ -14,7 +14,7 @@
 	<nav class="sidebar">
 		<header class="nav-tab nav-selected" id="nav-home" data-tab="main-home">
 			<img src="referant-logo.png" alt="Referant logo" class="logo">
-			Referant!
+			Home
 		</header>
 		<div class="nav-tab" id="nav-folders" data-tab="main-folders">
 			<img src="folders.png" alt="Folders" class="logo">
@@ -22,7 +22,11 @@
 		</div>
 		<div class="nav-tab" id="nav-layout" data-tab="main-layout">
 			<img src="layouts.png" alt="Layouts" class="logo">
-			Layouts 
+			Layouts
+		</div>
+		<div class="grow"></div>
+		<div id="about" class="about">
+			About
 		</div>
 	</nav>
 	<main class="content">
@@ -40,8 +44,8 @@
 		</div>
 		<div class="main-tab main-folders">
 			<h2>Folders</h2>
+			<button class="btn" id="header-button"> Search for a New Image <span id="triangle"> &#x25BC; </span> </button>
 			<div class="dialog" id="search-dialog">
-				<div id="header-dialog"> Search <span id="triangle"> &#x25B2; </span>  </div>
 				<div id="main-dialog">
 					<div class="filter-bar">
 						<input type="text" class="search-query" id="search-query" placeholder="Keyword, e.g. dog">
@@ -50,20 +54,20 @@
 						<button class="btn" id="view-activate">View: any</button>
 						<button class="btn" id="license-activate">License: any</button>
 						<div id="color-select-outer">
-							<div id="color-select-middle" class="filter-item">
-								<span class="color-select" id="color-select">
+							<div id="color-select-middle">
+								<span class="color-select filter-select" id="color-select">
 								</span>
 							</div>
 						</div>
 						<div id="view-select-outer">
-							<div id="view-select-middle" class="filter-item">
-								<span class="view-select" id="view-select">
+							<div id="view-select-middle">
+								<span class="view-select filter-select" id="view-select">
 								</span>
 							</div>
 						</div>
 						<div id="license-select-outer">
-							<div id="license-select-middle" class="filter-item">
-								<span class="license-select" id="license-select">
+							<div id="license-select-middle">
+								<span class="license-select filter-select" id="license-select">
 								</span>
 							</div>
 						</div>
@@ -73,9 +77,11 @@
 				</div>
 			</div>
 			<div class = "the-rest-of-it">
-				<input id="folder-name" class="folder-name" type="text" placeholder="Folder Name" />
-				<button class="btn" id="new-folder-button">Add New Folder</button>
-				<span id="folder-name-error-text"> </span>
+				<form id="new-folder-form">
+					<input id="folder-name" class="folder-name" type="text" placeholder="Folder Name" />
+					<button class="btn" id="new-folder-button">Add New Folder</button>
+					<span id="folder-name-error-text"> </span>
+				</form>
 				<div id="filesystem-path-outer">Current location:
 					<span id="filesystem-path"></span>
 				</div>
@@ -110,6 +116,11 @@
 			</div>
 		</div>
 	</main>
+	<div class="modal-outer" id="about-modal">
+		<div class="modal-bg">
+			Referant is a tool for graphic artists to find and lay out reference images.
+		</div>
+	</div>
 	<script
 		src="jquery/jquery-3.3.1.min.js"
 		></script>

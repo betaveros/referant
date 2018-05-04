@@ -1,6 +1,7 @@
 /// <reference path ="jquery/jquery.d.ts"/>
 /// <reference path ="jquery/jquery-ui.d.ts"/>
 
+
 interface Image {
 	filename: string;
 	keywords: string[];
@@ -174,28 +175,34 @@ const images: Image[] = [
 	}
 ];
 
-interface FileNode {
-	type: "image"|"folder"|"userimage";
+interface FolderNode {
 	name: string;
-	filename?: string;
-	contents?: FileNode[];
+	images: ImageNode[];
+	folders: FolderNode[];
+}
+interface ImageNode {
+	filename: string;
+	name: string;
 }
 
-let filesystem: FileNode[] = [];
+let layout_counter = 0;
+const emptyRoot : FolderNode = {
+	name: 'root',
+	images: [],
+	folders: [],
+};
+const exampleRoot : FolderNode = {"name":"root","images":[],"folders":[{"name":"Example Folder","images":[{"name":"red-daisy.jpg","filename":"red-daisy.jpg"},{"name":"shark.jpg","filename":"shark.jpg"}],"folders":[{"name":"Example Subfolder","images":[{"name":"moon.jpg","filename":"moon.jpg"}],"folders":[]}]}]}
+let filesystemRoot = exampleRoot;
 let filesystemPath: string[] = [];
 let addViewerPath: string[] = []
 
-function getCurrentNodes(path: string[]): FileNode[] {
-	let cur = filesystem;
+function getCurrentFolder(path: string[]): FolderNode {
+	let cur = filesystemRoot;
 	for (const pathComponent of path) {
 		let success = false;
-		for (const node of cur) {
+		for (const node of cur.folders) {
 			if (pathComponent === node.name) {
-				if (node.type !== "folder") {
-					console.error('suddenly image :(');
-					break;
-				}
-				cur = node.contents;
+				cur = node;
 				success = true;
 				break;
 			}
@@ -206,13 +213,13 @@ function getCurrentNodes(path: string[]): FileNode[] {
 	}
 	return cur;
 }
-function getNodeDictionary(node: FileNode): { [name: string]: FileNode } {
-	let ret: { [name: string]: FileNode } = {};
-	for (const child of node.contents) {
-		ret[child.name] = child;
-	}
-	return ret;
-}
+// function getNodeDictionary(node: FileNode): { [name: string]: FileNode } {
+// 	let ret: { [name: string]: FileNode } = {};
+// 	for (const child of node.contents) {
+// 		ret[child.name] = child;
+// 	}
+// 	return ret;
+// }
 
 $('.nav-tab').click(function () {
 	$('.nav-tab').removeClass('nav-selected');
@@ -221,15 +228,19 @@ $('.nav-tab').click(function () {
 	$('.main-tab').hide();
 	$('.' + $tab.data('tab')).show();
 });
+$('#about').click(() => {
+	$('#about-modal').show();
+});
 
-let shown : boolean = true;
-$('#header-dialog').click(function() {
+let shown : boolean = false;
+$('#search-dialog').hide();
+$('#header-button').click(function() {
 	shown = !shown;
 	if(shown) {
-		$('#main-dialog').show();
+		$('#search-dialog').show();
 		$('#triangle').html('&#x25B2;');
 	} else {
-		$('#main-dialog').hide();
+		$('#search-dialog').hide();
 		$('#triangle').html('&#x25BC;');
 	}
 })
@@ -238,46 +249,65 @@ $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
 
-function makeFolder(name: string, callback: () => void,
+function makeFolderElement(folder: FolderNode, callback: () => void,
 		closeCallback: () => void) : JQuery {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
 	let $img = $(document.createElement('img'));
 	$img.attr('src', 'folders.png');
 	let label = $(document.createElement('span'));
-	label.text(name);
+	label.text(folder.name);
 	$div.append($img);
 	$div.append(label);
 	$div.append(makeCloseButton(closeCallback));
 	$div.click(callback);
+	$div.on('dragover', (event) => {
+		event.preventDefault();
+		(event.dataTransfer || event.originalEvent.dataTransfer).dropEffect = "move";
+		console.log('dragover');
+		return false;
+	});
+	$div.on('drop', (event) => {
+		event.stopPropagation();
+		// event.preventDefault();
+		console.log('drop');
+		const dt = event.dataTransfer || event.originalEvent.dataTransfer;
+		let [path, i] = JSON.parse(dt.getData("text/plain"));
+		console.log(path, i);
+		let sourceFolder = getCurrentFolder(path);
+		let image = sourceFolder.images[i];
+		sourceFolder.images.splice(i, 1);
+		folder.images.push(image);
+		rerenderFilesystem();
+		return false;
+	});
 	return $div;
 }
-$('#new-folder-button').click(function () {
-	const rawName = '' + $('#folder-name').val();
-	const nodesRef = getCurrentNodes(filesystemPath);
-	const errorText = $('#folder-name-error-text');
+
+const folderErrorText = $('#folder-name-error-text');
+attend(folderErrorText);
+
+$('#new-folder-form').on('submit', function (e) {
+	e.preventDefault();
+	const name = '' + $('#folder-name').val();
+	const folder = getCurrentFolder(filesystemPath);
 	$('#folder-name').val('');
-	errorText.text('');
-	if(rawName === '') {
-		errorText.text('Please enter a name for the new folder.');
-		attend(errorText);
-		console.log('out 1');
+	if(name === '') {
+		folderErrorText.text('Please enter a name for the new folder.');
+		folderErrorText.addClass('attention');
 		return;
 	}
-	console.log(nodesRef);
-	if (nodesRef.some((e) => e.name === rawName)) {
-		errorText.text('That name is already taken; please enter a different name.');
-		attend(errorText);
-		console.log('out 2');
+	if (folder.folders.some((e) => e.name === name)) {
+		folderErrorText.text('That name is already taken; please enter a different name.');
+		folderErrorText.addClass('attention');
 		return;
 	}
-	nodesRef.push({
-		type: 'folder',
-		name: rawName,
-		contents: [] as FileNode[],
+	folder.folders.push({
+		name: name,
+		images: [],
+		folders: [],
 	});
 	rerenderFilesystem();
-	console.log("nothing");
 });
 $('.layout-img').draggable();
 $('.layout-img').resizable({
@@ -290,22 +320,32 @@ $('.layout-img').resizable({
 	}
 });
 
-let colorActivated : boolean = true;
-let viewActivated : boolean = true;
-let licenseActivated : boolean = true;
+let activated : string = "none";
+const filters : string[] = ['color', 'view', 'license'];
 
-$('#color-activate').click(() => {
-	$('#color-select-middle').toggleClass('filter-item');
-	$('#color-select').toggle();
-});
-$('#view-activate').click(() => {
-	$('#view-select-middle').toggleClass('filter-item');
-	$('#view-select').toggle();
-});
-$('#license-activate').click(() => {
-	$('#license-select-middle').toggleClass('filter-item');
-	$('#license-select').toggle();
-});
+function activate(filter: string) {
+	$('#' + filter + '-select').show();
+	$('#' + filter + '-select-middle').addClass('filter-item');
+}
+function deactivate(filter : string) {
+	$('#' + filter + '-select').hide();
+	$('#' + filter + '-select-middle').removeClass('filter-item');
+}
+
+for(const filter of filters) {
+	$('#' + filter + '-select').hide();
+	$('#' + filter + '-activate').click(function() {
+		if(filters.includes(activated)) {
+			deactivate(activated);
+		}
+		if(activated === filter) {
+			activated = "none";
+		} else {
+			activated = filter;
+			activate(filter);
+		}
+	})
+}
 
 interface SearchResult {
 	element: JQuery;
@@ -314,7 +354,8 @@ interface SearchResult {
 
 interface Filter {
 	key: string;
-	value: string;
+	value: string|Set<string>;
+	valueIsSet: boolean;
 	element?: JQuery;
 }
 
@@ -353,11 +394,36 @@ function makeRadioButton(name: string, label: string, callback: () => void, chec
 	$ret.append($label);
 	return $ret;
 }
+function makeCheckbox(name: string, label: string, callback: (e?: any) => void, checked?: boolean, disabled?: boolean): JQuery {
+	const id = name + '-' + label;
+	const $ret = $('<span>');
+	const $button = $('<input>', {
+		'type': 'checkbox',
+		'name': name,
+		'id': id,
+		'value': label,
+	});
+	if (checked) {
+		$button.prop('checked', true);
+	}
+	if (disabled) {
+		$button.prop('disabled', true);
+	}
+	$button.change(callback);
+	const $label = $('<label>', {
+		'for': id,
+	});
+	$label.text(label);
+	$ret.append($button);
+	$ret.append($label);
+	return $ret;
+}
 
 const darkColors = ['black', 'blue', 'purple'];
 $(document).ready(function () {
 	const colorSelect = $('#color-select');
 	const anyColorButton = $(document.createElement('button'));
+	anyColorButton.attr('id', 'any-color');
 	anyColorButton.addClass('any-color');
 	anyColorButton.addClass('color-selected');
 	anyColorButton.append(makeColorCheck());
@@ -365,7 +431,7 @@ $(document).ready(function () {
 	anyColorButton.click(function () {
 		$('#color-select button').removeClass('color-selected');
 		anyColorButton.addClass('color-selected');
-		setColorFilter(undefined);
+		clearColorFilter();
 	});
 	colorSelect.append(anyColorButton);
 	for(const filter of colorFilterNames) {
@@ -373,20 +439,30 @@ $(document).ready(function () {
 		button.append(makeColorCheck(darkColors.indexOf(filter) !== -1 ? 'white' : undefined));
 		button.css('background-color', filter);
 		button.click(function () {
-			$('#color-select button').removeClass('color-selected');
-			button.addClass('color-selected');
-			setColorFilter(filter);
+			$('#any-color').removeClass('color-selected');
+			button.toggleClass('color-selected');
+			toggleColorFilter(filter);
 		});
 		colorSelect.append(button);
 	}
-	const updateViewCallback = () => {
+	/*const updateViewCallback = () => {
 		const val = $('#view-select input:checked').val().toString();
+		console.log(val);
 		setViewFilter(val === 'any' ? undefined : val);
-	};
+	};*/
 	const viewSelect = $('#view-select');
-	viewSelect.append(makeRadioButton('view', 'any', updateViewCallback, true));
+	viewSelect.append(makeCheckbox('view', 'none', function(e) {
+		if($('#view-none').prop('checked')) for(const view of viewFilterNames) {
+			$('#view-' + view).prop('disabled', true);
+		} else for(const view of viewFilterNames) {
+			$('#view-' + view).prop('disabled', false);
+		}
+		toggleViewFilterOn();
+	}, true))
 	for (const view of viewFilterNames) {
-		viewSelect.append(makeRadioButton('view', view, updateViewCallback));
+		viewSelect.append(makeCheckbox('view', view, function () {
+			toggleViewFilter(view);
+		}, true, true));
 	}
 
 	const licenseViewCallback = () => {
@@ -409,8 +485,14 @@ function matchesQuery(image: Image, query0: string): boolean {
 	return false;
 }
 function matchesFilter(image: Image, filter: Filter): boolean {
+	console.log(filter);
 	let values: string[]|undefined = image[filter.key];
-	return values !== undefined && values.indexOf(filter.value) !== -1;
+	if(values === undefined) return false;
+	if(filter.valueIsSet) {
+		return values.some(e => filter.value.has(e));
+	} else {
+		return values.indexOf(filter.value) !== -1;
+	}
 }
 
 let addViewerShown : boolean = true;
@@ -422,10 +504,8 @@ function rerenderFilesystem(): void {
 		$('#add-viewer-path'),
 		$('#add-viewer'),
 		"You don't have any images in this folder you can add! Go to Folders to find and add an image first.",
-		(node) => {
-			if (node.type === 'image') {
-				addImage(node.filename, node.name);
-			}
+		(image) => {
+			addImage(image);
 			addViewerShown = false;
 			$('#add-viewer-outer').hide();
 			$('#new-image-triangle').html('&#x25BC;');
@@ -433,10 +513,10 @@ function rerenderFilesystem(): void {
 }
 function rerenderFilesystemViewer(path: string[], $path: JQuery, $viewer: JQuery,
 	emptyMsg?: string,
-	nodeCallback?: (node: FileNode) => void): void {
+	imageCallback?: (image: ImageNode) => void): void {
 
 	renderPath(path, $path);
-	renderFiles(path, $viewer, emptyMsg, nodeCallback);
+	renderFiles(path, $viewer, emptyMsg, imageCallback);
 }
 function renderPath(path, $path): void {
 	$path.empty();
@@ -457,44 +537,54 @@ function renderPath(path, $path): void {
 		}
 	});
 }
-function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callback?: (FileNode) => void): void {
-	const files = getCurrentNodes(path);
+function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callback?: (image: ImageNode) => void): void {
+	const folder = getCurrentFolder(path);
 	$target.empty();
-	if (files.length) {
-		files.forEach((node, i) => {
-			if (node.type === 'folder') {
-				$target.append(makeFolder(node.name, () => {
-					path.push(node.name);
-					rerenderFilesystem();
-				}, () => {
-					files.splice(i, 1);
-					rerenderFilesystem();
-				}));
-			} else {
-				const $div = $(document.createElement('div'));
-				$div.addClass('folder-image');
-				const $img = $('<img/>', {
-					src: node.filename,
-				});
-				$div.append($img);
-				$div.append(makeCloseButton(() => {
-					files.splice(i, 1);
-					rerenderFilesystem();
-				}));
-				if (callback) {
-					$img.click(() => callback(node));
-				}
-				$target.append($div);
-			}
+	let folderEmpty = false;
+	folder.images.forEach((image, i) => {
+		folderEmpty = false;
+		const $div = $(document.createElement('div'));
+		$div.attr('draggable', 'true');
+		// $div.prop('draggable', 'true');
+		// $div.prop('draggable', true);
+		const dragdata = JSON.stringify([path, i]);
+		console.log(dragdata);
+		$div.on('dragstart', (event) => {
+			console.log('dragstart');
+			(event.dataTransfer || event.originalEvent.dataTransfer).effectAllowed = "move";
+			(event.dataTransfer || event.originalEvent.dataTransfer).setData("text/plain", dragdata);
+			console.log('end dragstart');
 		});
-	} else {
-		if (emptyMsg) {
-			const $msgDiv = $('<div>', {
-				'class': 'folder-full-msg',
-			});
-			$msgDiv.text(emptyMsg);
-			$target.append($msgDiv);
+		$div.addClass('folder-image');
+		const $img = $('<img/>', {
+			src: image.filename,
+		});
+		$div.append($img);
+		$div.append(makeCloseButton(() => {
+			folder.images.splice(i, 1);
+			rerenderFilesystem();
+		}));
+		if (callback) {
+			$img.click(() => callback(image));
 		}
+		$target.append($div);
+	});
+	folder.folders.forEach((subfolder, i) => {
+		folderEmpty = false;
+		$target.append(makeFolderElement(subfolder, () => {
+			path.push(subfolder.name);
+			rerenderFilesystem();
+		}, () => {
+			folder.folders.splice(i, 1);
+			rerenderFilesystem();
+		}));
+	});
+	if (folderEmpty && emptyMsg) {
+		const $msgDiv = $('<div>', {
+			'class': 'folder-full-msg',
+		});
+		$msgDiv.text(emptyMsg);
+		$target.append($msgDiv);
 	}
 }
 
@@ -502,22 +592,25 @@ let focusedSearchImage: Image|undefined = undefined;
 
 function getAllActiveFilters(): Filter[] {
 	const filters = Array.from(activeFilters.values());
-	if (colorFilter !== undefined) {
+	if (colorFilter.size !== 0) {
 		filters.push({
 			key: 'colors',
 			value: colorFilter,
+			valueIsSet: true
 		});
 	}
-	if (viewFilter !== undefined) {
+	if (viewFilter !== undefined && viewFilterOn) {
 		filters.push({
 			key: 'view',
 			value: viewFilter,
+			valueIsSet: true
 		});
 	}
 	if (licenseFilter !== undefined) {
 		filters.push({
 			key: 'license',
 			value: licenseFilter,
+			valueIsSet: false
 		});
 	}
 	return filters;
@@ -527,7 +620,7 @@ function updateSearchResults() {
 	$('#search-results').empty();
 	const query = $('#search-query').val();
 	const allActiveFilters = getAllActiveFilters();
-	if(query !== '' || allActiveFilters.length !== 0) for (const image of images) {
+	/*if(query !== '' || allActiveFilters.length !== 0)*/ for (const image of images) {
 		if (matchesQuery(image, query.toString()) &&
 			allActiveFilters.every((filter) =>
 				matchesFilter(image, filter))) {
@@ -546,19 +639,44 @@ function updateSearchResults() {
 	}
 }
 
+$(document).ready(updateSearchResults)
+
 $('#search-query').keyup(updateSearchResults);
 
-let colorFilter: string|undefined = undefined;
-let viewFilter: string|undefined = undefined;
+let colorFilter : Set<string> = new Set();
+let viewFilterOn : boolean = false;
+let viewFilter: Set<string> = new Set(viewFilterNames);
 let licenseFilter: string|undefined = undefined;
-function setColorFilter(filter: string|undefined) {
-	colorFilter = filter;
-	$('#color-activate').text('Color: ' + (colorFilter || 'any'));
+function clearColorFilter() {
+	colorFilter.clear();
+	$('#color-activate').text('Color: any');
 	updateSearchResults();
 }
-function setViewFilter(filter: string|undefined) {
-	viewFilter = filter;
-	$('#view-activate').text('View: ' + (viewFilter || 'any'));
+function toggleColorFilter(filter: string) {
+	if(colorFilter.has(filter)) colorFilter.delete(filter);
+	else colorFilter.add(filter);
+	if(colorFilter.size == 0) {
+		$('#any-color').addClass('color-selected');
+		$('#color-activate').text('Color: any');
+	}
+	else if(colorFilter.size == 1) {
+		let name : string = "error";
+		for(const thing of colorFilter) name = thing;
+		$('#color-activate').text('Color: ' + name);
+	}
+	else {
+		$('#color-activate').text('Color: multiple');
+	}
+	updateSearchResults();
+}
+function toggleViewFilterOn() {
+	viewFilterOn = !viewFilterOn;
+	updateSearchResults();
+}
+function toggleViewFilter(filter: string|undefined) {
+	if(viewFilter.has(filter)) viewFilter.delete(filter);
+	else viewFilter.add(filter);
+	$('#view-activate').text('View: ' + 'i dont know what to put here');
 	updateSearchResults();
 }
 function setLicenseFilter(filter: string|undefined) {
@@ -568,7 +686,6 @@ function setLicenseFilter(filter: string|undefined) {
 }
 
 function attend(element: JQuery) {
-	element.addClass('attention');
 	element.on('animationend', (e) => { if(e.originalEvent.animationName === 'attention') {element.removeClass('attention'); console.log('removed'); }})
 }
 
@@ -576,7 +693,6 @@ function makeFilter(key: string, name: string) {
 	if(activeFilters.has(name)) {
 		const item = activeFilters.get(name)
 		item.element.addClass('attention');
-		attend(item.element);
 	} else {
 		const thing = $(document.createElement('div'));
 		const x = $(document.createElement('button'));
@@ -590,6 +706,7 @@ function makeFilter(key: string, name: string) {
 		const filter: Filter = {
 			key: key,
 			value: name,
+			valueIsSet: false,
 			element: thing,
 		};
 		$('#filterlist').append(thing);
@@ -616,12 +733,12 @@ function makeCloseButton(callback: () => void): JQuery {
 	return $closeButton;
 }
 
-function addImage(filename: string, alt: string): void {
+function addImage(image: ImageNode): void {
 	const $img = $('<div>');
 	$img.addClass('layout-image');
 	const $closeButton = makeCloseButton(() => $img.remove());
 	$img.append(`
-		<img src="${filename}" alt="${alt}">
+		<img src="${image.filename}" alt="${image.name}">
 		<div class="ui-resizable-handle ui-resizable-nw" id="nwgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-ne" id="negrip"></div>
 		<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
@@ -641,6 +758,9 @@ function addImage(filename: string, alt: string): void {
 	$img.mousedown(() => {
 		$('.layout-image').removeClass('layout-area-selected');
 		$img.addClass('layout-area-selected');
+		layout_counter+=1;
+		$img.css('z-index',layout_counter);
+
 	});
 	$('.layout-area').append($img);
 }
@@ -648,12 +768,13 @@ function addImage(filename: string, alt: string): void {
 $(document).ready(() => {
 	$('.modal-outer').click(function (e) {
 		if(e.target.id === 'modal-bg' || e.target.id === 'return-to-search') $(this).hide();
+		$(this).hide();
+		e.stopPropagation();
 	});
 	$('#add-to-folders').click(() => {
 		if (focusedSearchImage) {
 			// wow such haxx
-			getCurrentNodes(filesystemPath).push({
-				type: "image",
+			getCurrentFolder(filesystemPath).images.push({
 				name: focusedSearchImage.filename,
 				filename: focusedSearchImage.filename,
 				// contents: undefined,
