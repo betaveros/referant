@@ -175,29 +175,32 @@ const images: Image[] = [
 	}
 ];
 
-interface FileNode {
-	type: "image"|"folder";
+interface FolderNode {
 	name: string;
-	filename?: string;
-	contents?: FileNode[];
+	images: ImageNode[];
+	folders: FolderNode[];
+}
+interface ImageNode {
+	filename: string;
+	name: string;
 }
 
 let layout_counter = 0;
-let filesystem: FileNode[] = [];
+let filesystemRoot: FolderNode = {
+	name: 'root',
+	images: [],
+	folders: [],
+};
 let filesystemPath: string[] = [];
 let addViewerPath: string[] = []
 
-function getCurrentNodes(path: string[]): FileNode[] {
-	let cur = filesystem;
+function getCurrentFolder(path: string[]): FolderNode {
+	let cur = filesystemRoot;
 	for (const pathComponent of path) {
 		let success = false;
-		for (const node of cur) {
+		for (const node of cur.folders) {
 			if (pathComponent === node.name) {
-				if (node.type !== "folder") {
-					console.error('suddenly image :(');
-					break;
-				}
-				cur = node.contents;
+				cur = node;
 				success = true;
 				break;
 			}
@@ -208,13 +211,13 @@ function getCurrentNodes(path: string[]): FileNode[] {
 	}
 	return cur;
 }
-function getNodeDictionary(node: FileNode): { [name: string]: FileNode } {
-	let ret: { [name: string]: FileNode } = {};
-	for (const child of node.contents) {
-		ret[child.name] = child;
-	}
-	return ret;
-}
+// function getNodeDictionary(node: FileNode): { [name: string]: FileNode } {
+// 	let ret: { [name: string]: FileNode } = {};
+// 	for (const child of node.contents) {
+// 		ret[child.name] = child;
+// 	}
+// 	return ret;
+// }
 
 $('.nav-tab').click(function () {
 	$('.nav-tab').removeClass('nav-selected');
@@ -243,7 +246,7 @@ $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
 
-function makeFolder(name: string, callback: () => void,
+function makeFolderElement(name: string, callback: () => void,
 		closeCallback: () => void) : JQuery {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
@@ -255,23 +258,33 @@ function makeFolder(name: string, callback: () => void,
 	$div.append(label);
 	$div.append(makeCloseButton(closeCallback));
 	$div.click(callback);
+	$div.on('dragover', (event) => {
+		event.preventDefault();
+		(event.dataTransfer || event.originalEvent.dataTransfer).dropEffect = "move";
+		// var data = ev.dataTransfer.getData("text");
+		console.log('dragover');
+	});
+	$div.on('drop', (event) => {
+		event.preventDefault();
+		console.log('drop');
+	});
 	return $div;
 }
 $('#new-folder-button').click(function () {
 	const rawName = '' + $('#folder-name').val();
-	const nodesRef = getCurrentNodes(filesystemPath);
+	const folder = getCurrentFolder(filesystemPath);
 	$('#folder-name').val('');
 	const nameBase = (rawName === '' ? 'New Folder' : rawName);
 	let curName = nameBase;
 	let i = 1;
-	while (nodesRef.some((e) => e.name === curName)) {
+	while (folder.folders.some((e) => e.name === curName)) {
 		i += 1;
 		curName = nameBase + ' ' + i;
 	}
-	nodesRef.push({
-		type: 'folder',
+	folder.folders.push({
 		name: curName,
-		contents: [] as FileNode[],
+		images: [],
+		folders: [],
 	});
 	rerenderFilesystem();
 	console.log("nothing");
@@ -419,10 +432,8 @@ function rerenderFilesystem(): void {
 		$('#add-viewer-path'),
 		$('#add-viewer'),
 		"You don't have any images in this folder you can add! Go to Folders to find and add an image first.",
-		(node) => {
-			if (node.type === 'image') {
-				addImage(node.filename, node.name);
-			}
+		(image) => {
+			addImage(image);
 			addViewerShown = false;
 			$('#add-viewer-outer').hide();
 			$('#new-image-triangle').html('&#x25BC;');
@@ -430,10 +441,10 @@ function rerenderFilesystem(): void {
 }
 function rerenderFilesystemViewer(path: string[], $path: JQuery, $viewer: JQuery,
 	emptyMsg?: string,
-	nodeCallback?: (node: FileNode) => void): void {
+	imageCallback?: (image: ImageNode) => void): void {
 
 	renderPath(path, $path);
-	renderFiles(path, $viewer, emptyMsg, nodeCallback);
+	renderFiles(path, $viewer, emptyMsg, imageCallback);
 }
 function renderPath(path, $path): void {
 	$path.empty();
@@ -454,44 +465,51 @@ function renderPath(path, $path): void {
 		}
 	});
 }
-function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callback?: (FileNode) => void): void {
-	const files = getCurrentNodes(path);
+function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callback?: (image: ImageNode) => void): void {
+	const folder = getCurrentFolder(path);
 	$target.empty();
-	if (files.length) {
-		files.forEach((node, i) => {
-			if (node.type === 'folder') {
-				$target.append(makeFolder(node.name, () => {
-					path.push(node.name);
-					rerenderFilesystem();
-				}, () => {
-					files.splice(i, 1);
-					rerenderFilesystem();
-				}));
-			} else {
-				const $div = $(document.createElement('div'));
-				$div.addClass('folder-image');
-				const $img = $('<img/>', {
-					src: node.filename,
-				});
-				$div.append($img);
-				$div.append(makeCloseButton(() => {
-					files.splice(i, 1);
-					rerenderFilesystem();
-				}));
-				if (callback) {
-					$img.click(() => callback(node));
-				}
-				$target.append($div);
-			}
+	let folderEmpty = false;
+	folder.images.forEach((image, i) => {
+		folderEmpty = false;
+		const $div = $(document.createElement('div'));
+		$div.attr('draggable', true);
+		// $div.prop('draggable', true);
+		$div.on('dragstart', (ev) => {
+			console.log('dragstart');
+			const dt = ev.dataTransfer || ev.originalEvent.dataTransfer;
+			dt.effectAllowed = "move";
+			dt.setData("text/plain", "TODO");
 		});
-	} else {
-		if (emptyMsg) {
-			const $msgDiv = $('<div>', {
-				'class': 'folder-full-msg',
-			});
-			$msgDiv.text(emptyMsg);
-			$target.append($msgDiv);
+		$div.addClass('folder-image');
+		const $img = $('<img/>', {
+			src: image.filename,
+		});
+		$div.append($img);
+		$div.append(makeCloseButton(() => {
+			folder.images.splice(i, 1);
+			rerenderFilesystem();
+		}));
+		if (callback) {
+			$img.click(() => callback(image));
 		}
+		$target.append($div);
+	});
+	folder.folders.forEach((subfolder, i) => {
+		folderEmpty = false;
+		$target.append(makeFolderElement(subfolder.name, () => {
+			path.push(subfolder.name);
+			rerenderFilesystem();
+		}, () => {
+			folder.folders.splice(i, 1);
+			rerenderFilesystem();
+		}));
+	});
+	if (folderEmpty && emptyMsg) {
+		const $msgDiv = $('<div>', {
+			'class': 'folder-full-msg',
+		});
+		$msgDiv.text(emptyMsg);
+		$target.append($msgDiv);
 	}
 }
 
@@ -612,12 +630,12 @@ function makeCloseButton(callback: () => void): JQuery {
 	return $closeButton;
 }
 
-function addImage(filename: string, alt: string): void {
+function addImage(image: ImageNode): void {
 	const $img = $('<div>');
 	$img.addClass('layout-image');
 	const $closeButton = makeCloseButton(() => $img.remove());
 	$img.append(`
-		<img src="${filename}" alt="${alt}">
+		<img src="${image.filename}" alt="${image.name}">
 		<div class="ui-resizable-handle ui-resizable-nw" id="nwgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-ne" id="negrip"></div>
 		<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
@@ -652,8 +670,7 @@ $(document).ready(() => {
 	$('#add-to-folders').click(() => {
 		if (focusedSearchImage) {
 			// wow such haxx
-			getCurrentNodes(filesystemPath).push({
-				type: "image",
+			getCurrentFolder(filesystemPath).images.push({
 				name: focusedSearchImage.filename,
 				filename: focusedSearchImage.filename,
 				// contents: undefined,
