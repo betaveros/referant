@@ -223,6 +223,9 @@ $('.nav-tab').click(function () {
 	$('.main-tab').hide();
 	$('.' + $tab.data('tab')).show();
 });
+$('#about').click(() => {
+	$('#about-modal').show();
+});
 
 let shown : boolean = true;
 $('#header-dialog').click(function() {
@@ -642,8 +645,9 @@ function addImage(filename: string, alt: string): void {
 }
 
 $(document).ready(() => {
-	$('.modal-outer').click(function () {
+	$('.modal-outer').click(function (event) {
 		$(this).hide();
+		event.stopPropagation();
 	});
 	$('#add-to-folders').click(() => {
 		if (focusedSearchImage) {

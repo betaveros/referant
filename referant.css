@@ -20,7 +20,7 @@ body {
 	flex-direction: column;
     text-align: center;
     border-right: white 1px solid;
-    padding: 50px 0px 0px 0px;
+    padding: 50px 0px 20px 0px;
     user-select: none;
     -webkit-user-select: none;
 	/* justify-content: space-around; */
@@ -42,13 +42,19 @@ body {
 	width: 30px;
 	vertical-align: middle;
 }
-.sidebar > *:hover {
+.nav-tab, .about:hover {
+	cursor: pointer;
+}
+.nav-tab:hover, .about:hover {
 	background-color: hsl(212,14%,34%);
 }
 .sidebar > .nav-selected {
 	background-color: hsl(210,24%,25%);
 }
 .sidebar > .nav-selected img {
+}
+.sidebar .grow {
+	flex-grow: 1;
 }
 .content {
 	box-sizing: border-box;
