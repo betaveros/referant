@@ -631,7 +631,7 @@ function updateSearchResults() {
 				focusedSearchImage = image;
 				$('#search-modal img').attr('src', image.filename);
 				$('#search-modal .filename').text(image.filename);
-				$('#search-modal .description').text(`${image.keywords.join(', ')}`);
+				$('#search-modal .description').text('Tags: '+ image.keywords.join(', '));
 				$('#search-modal').show();
 			});
 			$('#search-results').append($img);
