@@ -16,6 +16,10 @@
 			<img src="referant-logo.png" alt="Referant logo" class="logo">
 			Home
 		</header>
+		<div class="nav-tab" id="nav-search" data-tab="main-search">
+			<img alt="Search" class="logo">
+			Search
+		</div>
 		<div class="nav-tab" id="nav-folders" data-tab="main-folders">
 			<img src="folders.png" alt="Folders" class="logo">
 			Folders
@@ -42,16 +46,58 @@
 				<img src="dog6.jpg" alt="dog">
 			</div>
 		</div>
+		<div class="main-tab main-search">
+			<h2>Search</h2>
+			<div id="main-dialog">
+				<div class="filter-bar">
+					<input type="text" class="search-query" id="search-query" placeholder="Keyword, e.g. dog">
+					<button class="btn" id="color-activate">Color: any</button>
+					<button class="btn" id="view-activate">View: no filter</button>
+					<button class="btn" id="license-activate">License: any</button>
+					<div id="color-select-outer">
+						<div id="color-select-middle">
+							<span class="color-select filter-select" id="color-select">
+							</span>
+						</div>
+					</div>
+					<div id="view-select-outer">
+						<div id="view-select-middle">
+							<span class="view-select filter-select" id="view-select">
+							</span>
+						</div>
+					</div>
+					<div id="license-select-outer">
+						<div id="license-select-middle">
+							<span class="license-select filter-select" id="license-select">
+							</span>
+						</div>
+					</div>
+				</div>
+				<div id="search-results" class="search-results">
+				</div>
+			</div>
+			<div class="modal-outer" id="search-modal">
+				<div class="modal-bg" id="modal-bg">
+					<img src="dog1.jpg" alt="dog">
+					<div class="modal-side">
+						<div class="filename">dog1.jpg</div>
+						<div class="description">Tags: ...</div>
+						<button class="btn" id="add-to-folders">Add to Folder</button>
+						<button class="btn" id="return-to-search">Return to Search</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div class="main-tab main-folders">
 			<h2>Folders</h2>
 			<button class="btn" id="header-button"> Search for a New Image <span id="triangle"> &#x25BC; </span> </button>
-			<div class="dialog" id="search-dialog">
+			<!--div class="dialog" id="search-dialog">
 				<div id="main-dialog">
 					<div class="filter-bar">
 						<input type="text" class="search-query" id="search-query" placeholder="Keyword, e.g. dog">
 
 						<button class="btn" id="color-activate">Color: any</button>
-						<button class="btn" id="view-activate">View: any</button>
+						<button class="btn" id="view-activate">View: no filter</button>
 						<button class="btn" id="license-activate">License: any</button>
 						<div id="color-select-outer">
 							<div id="color-select-middle">
@@ -75,28 +121,19 @@
 					<div id="search-results" class="search-results">
 					</div>
 				</div>
-			</div>
+			</div-->
 			<div class = "the-rest-of-it">
 				<form id="new-folder-form">
-					<input id="folder-name" class="folder-name" type="text" placeholder="Folder Name" />
-					<button class="btn" id="new-folder-button">Add New Folder</button>
-					<span id="folder-name-error-text"> </span>
+					<div id="new-folder-form-inputs">
+						<input id="folder-name" class="folder-name" type="text" placeholder="Folder Name" />
+						<input type="submit" class="btn" id="new-folder-button" value="Add New Folder"></input>
+					</div>
+					<div id="folder-name-error-text"> </div>
 				</form>
 				<div id="filesystem-path-outer">Current location:
 					<span id="filesystem-path"></span>
 				</div>
 				<div class = "folder-display" id="filesystem-viewer">
-				</div>
-			</div>
-			<div class="modal-outer" id="search-modal">
-				<div class="modal-bg" id="modal-bg">
-					<img src="dog1.jpg" alt="dog">
-					<div class="modal-side">
-						<div class="filename">dog1.jpg</div>
-						<div class="description">Tags: ...</div>
-						<button class="btn" id="add-to-folders">Add to Folder</button>
-						<button class="btn" id="return-to-search">Return to Search</button>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -119,6 +156,17 @@
 	<div class="modal-outer" id="about-modal">
 		<div class="modal-bg">
 			Referant is a tool for graphic artists to find and lay out reference images.
+		</div>
+	</div>
+	<div class="modal-outer" id="error-modal">
+		<div class="modal-bg">
+			<div>
+				<h4>
+					The folder &ldquo;<span id="error-modal-contents"></span>&rdquo; is not empty. Do you want to delete it anyway?
+				</h4>
+				<button class="btn" id="error-modal-delete">Yes, delete &ldquo;<span id="error-modal-contents-1"></span>&rdquo;</button>
+				<button class="btn" id="error-modal-keep">No, keep &ldquo;<span id="error-modal-contents-2"></span>&rdquo;</button>
+			</div>
 		</div>
 	</div>
 	<script

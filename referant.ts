@@ -250,7 +250,7 @@ $('#search-button').click(function () {
 });
 
 function makeFolderElement(folder: FolderNode, callback: () => void,
-		closeCallback: () => void) : JQuery {
+		closeCallback: (e?: any) => void) : JQuery {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
 	let $img = $(document.createElement('img'));
@@ -302,6 +302,7 @@ $('#new-folder-form').on('submit', function (e) {
 		folderErrorText.addClass('attention');
 		return;
 	}
+	folderErrorText.text('');
 	folder.folders.push({
 		name: name,
 		images: [],
@@ -332,9 +333,17 @@ function deactivate(filter : string) {
 	$('#' + filter + '-select-middle').removeClass('filter-item');
 }
 
+$(document.documentElement).on('click', function() {
+	if(filters.includes(activated)){
+		deactivate(activated);
+		activated = "none";
+	}
+})
+
 for(const filter of filters) {
 	$('#' + filter + '-select').hide();
-	$('#' + filter + '-activate').click(function() {
+	$('#' + filter + '-activate').click(function(e) {
+		e.stopPropagation();
 		if(filters.includes(activated)) {
 			deactivate(activated);
 		}
@@ -344,6 +353,9 @@ for(const filter of filters) {
 			activated = filter;
 			activate(filter);
 		}
+	})
+	$('#' + filter + '-select-middle').click(function(e) {
+		e.stopPropagation();
 	})
 }
 
@@ -489,9 +501,9 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 	let values: string[]|undefined = image[filter.key];
 	if(values === undefined) return false;
 	if(filter.valueIsSet) {
-		return values.some(e => filter.value.has(e));
+		return values.some(e => (filter.value as Set<string>).has(e));
 	} else {
-		return values.indexOf(filter.value) !== -1;
+		return values.indexOf(filter.value as string) !== -1;
 	}
 }
 
@@ -537,6 +549,22 @@ function renderPath(path, $path): void {
 		}
 	});
 }
+
+function fillErrorModal(folderName: string) {
+	$('#error-modal-contents').text(folderName);
+	$('#error-modal-contents-1').text(folderName);
+	$('#error-modal-contents-2').text(folderName);
+}
+
+function attachToErrorModal(callback: (e?: any) => void) {
+	$('#error-modal-delete').click(function(e) {
+		callback(e);
+	});
+	$('#error-modal').click(function() {
+		$('#error-modal-delete').off('click');
+	});
+}
+
 function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callback?: (image: ImageNode) => void): void {
 	const folder = getCurrentFolder(path);
 	$target.empty();
@@ -570,13 +598,23 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 		$target.append($div);
 	});
 	folder.folders.forEach((subfolder, i) => {
-		folderEmpty = false;
+		folderEmpty = subfolder.images.length === 0 && subfolder.folders.length === 0;
 		$target.append(makeFolderElement(subfolder, () => {
 			path.push(subfolder.name);
 			rerenderFilesystem();
-		}, () => {
-			folder.folders.splice(i, 1);
-			rerenderFilesystem();
+		}, (e) => {
+			if(folderEmpty) {
+				folder.folders.splice(i, 1);
+				rerenderFilesystem();
+			} else {
+				e.stopPropagation();
+				fillErrorModal(subfolder.name);
+				$('#error-modal').show();
+				attachToErrorModal(function() {
+					folder.folders.splice(i, 1);
+					rerenderFilesystem();
+				})
+			}
 		}));
 	});
 	if (folderEmpty && emptyMsg) {
@@ -669,14 +707,30 @@ function toggleColorFilter(filter: string) {
 	}
 	updateSearchResults();
 }
+function updateViewFilterText() {
+	let filter:string = '';
+	if(!viewFilterOn) filter = 'no filter';
+	else if(viewFilter.size === 3) {
+		filter = 'any';
+	} else if(viewFilter.size > 0) {
+		for(const f of viewFilter) {
+			filter += f + ' or ';
+		}
+		filter = filter.substring(0, filter.length - ' or '.length);
+	} else {
+		filter = 'none';
+	}
+	$('#view-activate').text('View: ' + filter);
+}
 function toggleViewFilterOn() {
 	viewFilterOn = !viewFilterOn;
+	updateViewFilterText();
 	updateSearchResults();
 }
 function toggleViewFilter(filter: string|undefined) {
 	if(viewFilter.has(filter)) viewFilter.delete(filter);
 	else viewFilter.add(filter);
-	$('#view-activate').text('View: ' + 'i dont know what to put here');
+	updateViewFilterText();
 	updateSearchResults();
 }
 function setLicenseFilter(filter: string|undefined) {
