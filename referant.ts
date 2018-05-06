@@ -249,6 +249,10 @@ $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
 
+function dtOf(event: JQuery.Event<HTMLElement, null>): any {
+	return (event as any).dataTransfer || (event as any).originalEvent.dataTransfer;
+}
+
 function makeFolderElement(folder: FolderNode, callback: () => void,
 		closeCallback: (e?: any) => void) : JQuery {
 	let $div = $(document.createElement('div'));
@@ -263,7 +267,7 @@ function makeFolderElement(folder: FolderNode, callback: () => void,
 	$div.click(callback);
 	$div.on('dragover', (event) => {
 		event.preventDefault();
-		(event.dataTransfer || event.originalEvent.dataTransfer).dropEffect = "move";
+		dtOf(event).dropEffect = "move";
 		console.log('dragover');
 		return false;
 	});
@@ -271,7 +275,7 @@ function makeFolderElement(folder: FolderNode, callback: () => void,
 		event.stopPropagation();
 		// event.preventDefault();
 		console.log('drop');
-		const dt = event.dataTransfer || event.originalEvent.dataTransfer;
+		const dt = dtOf(event);
 		let [path, i] = JSON.parse(dt.getData("text/plain"));
 		console.log(path, i);
 		let sourceFolder = getCurrentFolder(path);
@@ -478,7 +482,12 @@ $(document).ready(function () {
 	}
 
 	const licenseViewCallback = () => {
-		const val = $('#license-select input:checked').val().toString();
+		const $val = $('#license-select input:checked').val();
+		if (!$val) {
+			console.error('empty license??');
+			return;
+		}
+		const val = $val.toString();
 		setLicenseFilter(val === 'any' ? undefined : val);
 	};
 	const licenseSelect = $('#license-select');
@@ -579,8 +588,8 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 		console.log(dragdata);
 		$div.on('dragstart', (event) => {
 			console.log('dragstart');
-			(event.dataTransfer || event.originalEvent.dataTransfer).effectAllowed = "move";
-			(event.dataTransfer || event.originalEvent.dataTransfer).setData("text/plain", dragdata);
+			dtOf(event).effectAllowed = "move";
+			dtOf(event).setData("text/plain", dragdata);
 			console.log('end dragstart');
 		});
 		$div.addClass('folder-image');
@@ -656,7 +665,7 @@ function getAllActiveFilters(): Filter[] {
 
 function updateSearchResults() {
 	$('#search-results').empty();
-	const query = $('#search-query').val();
+	const query = $('#search-query').val() || '';
 	const allActiveFilters = getAllActiveFilters();
 	/*if(query !== '' || allActiveFilters.length !== 0)*/ for (const image of images) {
 		if (matchesQuery(image, query.toString()) &&
@@ -727,7 +736,7 @@ function toggleViewFilterOn() {
 	updateViewFilterText();
 	updateSearchResults();
 }
-function toggleViewFilter(filter: string|undefined) {
+function toggleViewFilter(filter: string) {
 	if(viewFilter.has(filter)) viewFilter.delete(filter);
 	else viewFilter.add(filter);
 	updateViewFilterText();
@@ -740,7 +749,12 @@ function setLicenseFilter(filter: string|undefined) {
 }
 
 function attend(element: JQuery) {
-	element.on('animationend', (e) => { if(e.originalEvent.animationName === 'attention') {element.removeClass('attention'); console.log('removed'); }})
+	element.on('animationend', (e: JQuery.Event<HTMLElement, null>) => {
+		if (e.originalEvent.animationName === 'attention') {
+			element.removeClass('attention');
+			console.log('removed');
+		}
+	});
 }
 
 function makeFilter(key: string, name: string) {
@@ -816,7 +830,7 @@ function addImage(image: ImageNode): void {
 		<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-se" id="segrip"></div>
 	`);
-	const rawImg = $img.find('img')[0];
+	const rawImg = $img.find('img')[0] as HTMLImageElement;
 	const ratio = 0.1;
 	$img.css('width',  ratio * rawImg.naturalWidth  + 'px');
 	$img.css('height', ratio * rawImg.naturalHeight + 'px');
@@ -851,13 +865,13 @@ function addImage(image: ImageNode): void {
 			type = 'se';
 		}
 		if (type === undefined) {
-			console.err('bad handle resizing');
+			console.error('bad handle resizing');
 			return;
 		}
 		dragging = {
 			type: type,
-			x: event.clientX,
-			y: event.clientY,
+			x: event.clientX as number,
+			y: event.clientY as number,
 			key: key,
 		};
 		$('.layout-image').removeClass('layout-area-selected');
@@ -893,13 +907,17 @@ interface DragComputation {
 	width: number;
 	height: number;
 }
-function dragCompute(info: LayoutInfo, event: MouseEvent): DragComputation {
+function dragCompute(info: LayoutInfo, event: JQuery.Event<HTMLElement, null>): DragComputation {
+	if (!dragging) {
+		console.error("Can't dragcompute when not dragging!");
+		return {} as DragComputation;
+	}
 	let x: number = info.x;
 	let y: number = info.y;
-	let rawImg: HTMLElement = info.element.find('img')[0];
+	let rawImg = info.element.find('img')[0] as HTMLImageElement;
 	let ratio: number = info.ratio;
-	let dx = event.clientX - dragging.x;
-	let dy = event.clientY - dragging.y;
+	let dx = event.clientX as number - dragging.x;
+	let dy = event.clientY as number - dragging.y;
 	let nw = rawImg.naturalWidth;
 	let nh = rawImg.naturalHeight;
 	let w = nw * ratio;
@@ -927,9 +945,12 @@ function dragCompute(info: LayoutInfo, event: MouseEvent): DragComputation {
 $(document).mousemove((event) => {
 	if (!dragging) return;
 	let info = layoutInfos[dragging.key];
+	if (!info) {
+		console.error('Mouse-move on missing object!')
+		return;
+	}
 	if (dragging.type === 'move') {
-		// console.log(event.clientX, event.clientY);
-		info.element.css('transform', `translate(${info.x + event.clientX - dragging.x}px, ${info.y + event.clientY - dragging.y}px)`);
+		info.element.css('transform', `translate(${info.x + (event.clientX as number) - dragging.x}px, ${info.y + (event.clientY as number) - dragging.y}px)`);
 	} else {
 		console.log('old', info.x, info.y, info.ratio);
 		let {x, y, ratio, width, height} = dragCompute(info, event);
@@ -938,22 +959,25 @@ $(document).mousemove((event) => {
 		info.element.css('height', height + 'px');
 	}
 });
-$(document).mouseup((event) => {
-	if (dragging) {
-		const key = dragging.key;
-		let info = layoutInfos[key];
-		if (dragging.type === 'move') {
-			info.x += event.clientX - dragging.x;
-			info.y += event.clientY - dragging.y;
-		} else {
-			let {x, y, ratio, width, height} = dragCompute(info, event);
-			info.x = x;
-			info.y = y;
-			info.ratio = ratio;
-		}
-		dragging = undefined;
-		event.preventDefault();
+$(document).mouseup((event: JQuery.Event<HTMLElement, null>) => {
+	if (!dragging) return;
+	const key = dragging.key;
+	let info = layoutInfos[key];
+	if (!info) {
+		console.error('Mouse-up on missing object!')
+		return;
 	}
+	if (dragging.type === 'move') {
+		info.x += event.clientX as number - dragging.x;
+		info.y += event.clientY as number - dragging.y;
+	} else {
+		let {x, y, ratio, width, height} = dragCompute(info, event);
+		info.x = x;
+		info.y = y;
+		info.ratio = ratio;
+	}
+	dragging = undefined;
+	event.preventDefault();
 });
 
 $(document).ready(() => {
