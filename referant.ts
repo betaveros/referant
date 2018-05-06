@@ -790,11 +790,12 @@ function makeCloseButton(callback: () => void): JQuery {
 interface LayoutInfo {
 	x: number;
 	y: number;
-	w: number;
+	ratio: number; // from naturalWidth, naturalHeight
 	filename: string;
 	element: JQuery;
 }
 interface DragStatus {
+	type: 'move'|'nw'|'ne'|'sw'|'se';
 	x: number;
 	y: number;
 	key: number;
@@ -815,9 +816,15 @@ function addImage(image: ImageNode): void {
 		<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-se" id="segrip"></div>
 	`);
+	const rawImg = $img.find('img')[0];
+	const ratio = 0.1;
+	$img.css('width',  ratio * rawImg.naturalWidth  + 'px');
+	$img.css('height', ratio * rawImg.naturalHeight + 'px');
 	$img.append($closeButton);
 	$img.mousedown((event) => {
+		if (dragging) return;
 		dragging = {
+			type: 'move',
 			x: event.clientX as number,
 			y: event.clientY as number,
 			key: key,
@@ -828,15 +835,35 @@ function addImage(image: ImageNode): void {
 		$img.css('z-index',layout_counter);
 		event.preventDefault();
 	});
-	$img.mouseup((event) => {
-		if (dragging && dragging.key === key) {
-			let info = layoutInfos[key];
-			info.x += event.clientX - dragging.x;
-			info.y += event.clientY - dragging.y;
-			dragging = undefined;
-			// $img.css('transform', '');
-			event.preventDefault();
+	// $img.find('.ui-resizable-handle').mouseup((event) => {
+		// dragging = undefined;
+	// });
+	$img.find('.ui-resizable-handle').mousedown((event) => {
+		let type: 'nw'|'ne'|'sw'|'se'|undefined = undefined;
+		if ($(event.target).hasClass('ui-resizable-nw')) {
+			type = 'nw';
+		} else if ($(event.target).hasClass('ui-resizable-ne')) {
+			type = 'ne';
+		} else if ($(event.target).hasClass('ui-resizable-sw')) {
+			type = 'sw';
+		} else if ($(event.target).hasClass('ui-resizable-se')) {
+			type = 'se';
 		}
+		if (type === undefined) {
+			console.err('bad handle resizing');
+			return;
+		}
+		dragging = {
+			type: type,
+			x: event.clientX,
+			y: event.clientY,
+			key: key,
+		};
+		$('.layout-image').removeClass('layout-area-selected');
+		$img.addClass('layout-area-selected');
+		layout_counter+=1;
+		$img.css('z-index',layout_counter);
+		event.preventDefault();
 	});
 	// $img.draggable();
 	// $img.resizable({
@@ -852,16 +879,79 @@ function addImage(image: ImageNode): void {
 	layoutInfos[key] = {
 		x: 0,
 		y: 0,
-		w: 0, // TODO
+		ratio: ratio,
 		filename: image.filename,
 		element: $img,
 	};
 }
+interface DragComputation {
+	x: number;
+	y: number;
+	ratio: number;
+	width: number;
+	height: number;
+}
+function dragCompute(info: LayoutInfo, event: MouseEvent): DragComputation {
+	let x: number = info.x;
+	let y: number = info.y;
+	let rawImg: HTMLElement = info.element.find('img')[0];
+	let ratio: number = info.ratio;
+	let dx = event.clientX - dragging.x;
+	let dy = event.clientY - dragging.y;
+	let nw = rawImg.naturalWidth;
+	let nh = rawImg.naturalHeight;
+	let w = nw * ratio;
+	let h = nh * ratio;
+	let negX: boolean;
+	let negY: boolean;
+	if (dragging.type === 'nw') {
+		[negX, negY] = [true, true];
+	} else if (dragging.type === 'ne') {
+		[negX, negY] = [false, true];
+	} else if (dragging.type === 'sw') {
+		[negX, negY] = [true, false];
+	} else if (dragging.type === 'se') {
+		[negX, negY] = [false, false];
+	} else {
+		throw 'bad dragging';
+	}
+	let badW = negX ? w - dx : w + dx;
+	let badH = negY ? h - dy : h + dy;
+	let avgRatio = ((badW / nw) + (badH / nh)) / 2;
+	let newX = negX ? (x + w) - (avgRatio * nw) : x;
+	let newY = negY ? (y + h) - (avgRatio * nh) : y;
+	return {x: newX, y: newY, ratio: avgRatio, width: avgRatio * nw, height: avgRatio * nh};
+}
 $(document).mousemove((event) => {
 	if (!dragging) return;
-	console.log(event.clientX, event.clientY);
 	let info = layoutInfos[dragging.key];
-	info.element.css('transform', `translate(${info.x + event.clientX - dragging.x}px, ${info.y + event.clientY - dragging.y}px)`);
+	if (dragging.type === 'move') {
+		// console.log(event.clientX, event.clientY);
+		info.element.css('transform', `translate(${info.x + event.clientX - dragging.x}px, ${info.y + event.clientY - dragging.y}px)`);
+	} else {
+		console.log('old', info.x, info.y, info.ratio);
+		let {x, y, ratio, width, height} = dragCompute(info, event);
+		info.element.css('transform', `translate(${x}px, ${y}px)`);
+		info.element.css('width',  width  + 'px');
+		info.element.css('height', height + 'px');
+	}
+});
+$(document).mouseup((event) => {
+	if (dragging) {
+		const key = dragging.key;
+		let info = layoutInfos[key];
+		if (dragging.type === 'move') {
+			info.x += event.clientX - dragging.x;
+			info.y += event.clientY - dragging.y;
+		} else {
+			let {x, y, ratio, width, height} = dragCompute(info, event);
+			info.x = x;
+			info.y = y;
+			info.ratio = ratio;
+		}
+		dragging = undefined;
+		event.preventDefault();
+	}
 });
 
 $(document).ready(() => {
