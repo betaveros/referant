@@ -834,6 +834,7 @@ function addImage(image: ImageNode): void {
 		layout_counter+=1;
 		$img.css('z-index',layout_counter);
 		event.preventDefault();
+		event.stopPropagation();
 	});
 	// $img.find('.ui-resizable-handle').mouseup((event) => {
 		// dragging = undefined;
@@ -864,6 +865,7 @@ function addImage(image: ImageNode): void {
 		layout_counter+=1;
 		$img.css('z-index',layout_counter);
 		event.preventDefault();
+		event.stopPropagation();
 	});
 	// $img.draggable();
 	// $img.resizable({
@@ -982,6 +984,9 @@ $(document).ready(() => {
 			$('#add-viewer-outer').hide();
 			$('#new-image-triangle').html('&#x25BC;');
 		}
+	});
+	$(document).mousedown(function (e) {
+		$('.layout-image').removeClass('layout-area-selected');
 	});
 	rerenderFilesystem();
 });
