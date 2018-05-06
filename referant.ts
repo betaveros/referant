@@ -907,23 +907,27 @@ interface DragComputation {
 	width: number;
 	height: number;
 }
+const MIN_LAYOUT_DIMENSION = 60;
 function dragCompute(info: LayoutInfo, event: JQuery.Event<HTMLElement, null>): DragComputation {
 	if (!dragging) {
 		console.error("Can't dragcompute when not dragging!");
 		return {} as DragComputation;
 	}
+	// x, y, w, h: original top-left corner and dimensions
 	let x: number = info.x;
 	let y: number = info.y;
 	let rawImg = info.element.find('img')[0] as HTMLImageElement;
 	let ratio: number = info.ratio;
-	let dx = event.clientX as number - dragging.x;
-	let dy = event.clientY as number - dragging.y;
 	let nw = rawImg.naturalWidth;
 	let nh = rawImg.naturalHeight;
 	let w = nw * ratio;
 	let h = nh * ratio;
-	let negX: boolean;
-	let negY: boolean;
+
+	// dragged displacement
+	let dx = event.clientX as number - dragging.x;
+	let dy = event.clientY as number - dragging.y;
+	let negX: boolean; // are we dragging one of the west corners?
+	let negY: boolean; // are we dragging one of the north corners?
 	if (dragging.type === 'nw') {
 		[negX, negY] = [true, true];
 	} else if (dragging.type === 'ne') {
@@ -935,9 +939,20 @@ function dragCompute(info: LayoutInfo, event: JQuery.Event<HTMLElement, null>): 
 	} else {
 		throw 'bad dragging';
 	}
+	// what the new width and height would be if we ignored aspect ratio
+	// constraints
 	let badW = negX ? w - dx : w + dx;
 	let badH = negY ? h - dy : h + dy;
+	// to get the right ratio, we average the two ratios computed from badW
+	// and badH
 	let avgRatio = ((badW / nw) + (badH / nh)) / 2;
+	// make sure the image doesn't get dragged past (0, 0)
+	if (negX) avgRatio = Math.min(avgRatio, (x + w) / nw);
+	if (negY) avgRatio = Math.min(avgRatio, (y + h) / nh);
+	// make sure the image doesn't get resized to arbitrarily small
+	avgRatio = Math.max(avgRatio, MIN_LAYOUT_DIMENSION / nw);
+	avgRatio = Math.max(avgRatio, MIN_LAYOUT_DIMENSION / nh);
+	// finally compute the new top-left corner
 	let newX = negX ? (x + w) - (avgRatio * nw) : x;
 	let newY = negY ? (y + h) - (avgRatio * nh) : y;
 	return {x: newX, y: newY, ratio: avgRatio, width: avgRatio * nw, height: avgRatio * nh};
@@ -950,7 +965,7 @@ $(document).mousemove((event) => {
 		return;
 	}
 	if (dragging.type === 'move') {
-		info.element.css('transform', `translate(${info.x + (event.clientX as number) - dragging.x}px, ${info.y + (event.clientY as number) - dragging.y}px)`);
+		info.element.css('transform', `translate(${Math.max(0, info.x + (event.clientX as number) - dragging.x)}px, ${Math.max(0, info.y + (event.clientY as number) - dragging.y)}px)`);
 	} else {
 		console.log('old', info.x, info.y, info.ratio);
 		let {x, y, ratio, width, height} = dragCompute(info, event);
@@ -970,6 +985,8 @@ $(document).mouseup((event: JQuery.Event<HTMLElement, null>) => {
 	if (dragging.type === 'move') {
 		info.x += event.clientX as number - dragging.x;
 		info.y += event.clientY as number - dragging.y;
+		info.x = Math.max(info.x, 0);
+		info.y = Math.max(info.y, 0);
 	} else {
 		let {x, y, ratio, width, height} = dragCompute(info, event);
 		info.x = x;
