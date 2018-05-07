@@ -486,7 +486,7 @@ input.folder-name {
 
 .modal-outer { display: none; }
 .modal-bg {
-	z-index: 1337;
+	z-index: 31337;
 	position: fixed;
 	top: 0;
 	left: 0;
