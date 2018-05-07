@@ -249,10 +249,42 @@ $('#search-button').click(function () {
 	$('#search-dialog').toggle();
 });
 
-function makeFolderElement(folder: FolderNode, callback: () => void,
+function dtOf(event: JQuery.Event<HTMLElement, null>): any {
+	return (event as any).dataTransfer || (event as any).originalEvent.dataTransfer;
+}
+
+interface DraggedNodePathInfo {
+	path: string[];
+	isFolder: boolean;
+	index: number;
+}
+
+let draggedNodePathInfo: DraggedNodePathInfo|undefined = undefined;
+
+function dropDraggedNode(targetFolder: FolderNode) {
+	if (draggedNodePathInfo) {
+		console.log('drop!');
+		let {path, isFolder, index} = draggedNodePathInfo;
+		console.log(path, isFolder, index);
+		let sourceFolder = getCurrentFolder(path);
+		if (isFolder) {
+			let movingFolder = sourceFolder.folders[index];
+			sourceFolder.folders.splice(index, 1);
+			targetFolder.folders.push(movingFolder);
+		} else {
+			let image = sourceFolder.images[index];
+			sourceFolder.images.splice(index, 1);
+			targetFolder.images.push(image);
+		}
+		rerenderFilesystem();
+	}
+}
+
+function makeFolderElement(folderPath: string[], i: number, folder: FolderNode, callback: () => void,
 		closeCallback: (e?: any) => void) : JQuery {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
+	$div.addClass('folder-draggable-node');
 	let $img = $(document.createElement('img'));
 	$img.attr('src', 'folders.png');
 	let label = $(document.createElement('span'));
@@ -261,26 +293,31 @@ function makeFolderElement(folder: FolderNode, callback: () => void,
 	$div.append(label);
 	$div.append(makeCloseButton(closeCallback));
 	$div.click(callback);
-	$div.on('dragover', (event) => {
-		event.preventDefault();
-		(event.dataTransfer || event.originalEvent.dataTransfer).dropEffect = "move";
-		console.log('dragover');
-		return false;
-	});
-	$div.on('drop', (event) => {
-		event.stopPropagation();
-		// event.preventDefault();
-		console.log('drop');
-		const dt = event.dataTransfer || event.originalEvent.dataTransfer;
-		let [path, i] = JSON.parse(dt.getData("text/plain"));
-		console.log(path, i);
-		let sourceFolder = getCurrentFolder(path);
-		let image = sourceFolder.images[i];
-		sourceFolder.images.splice(i, 1);
-		folder.images.push(image);
-		rerenderFilesystem();
-		return false;
-	});
+	const myDraggedNodePathInfo: DraggedNodePathInfo = {
+		path: folderPath.slice(0),
+		isFolder: true,
+		index: i,
+	};
+	$div.draggable({
+		revert: 'invalid',
+		classes: {
+			"ui-draggable-dragging": "dragging",
+		},
+		stack: '.folder-draggable-node',
+		start: () => {
+			draggedNodePathInfo = myDraggedNodePathInfo;
+		},
+	} as any);
+	$div.droppable({
+		accept: '.folder-draggable-node',
+		classes: {
+			"ui-droppable-active": "drop-target",
+			"ui-droppable-hover": "drop-target-hover",
+		},
+		drop: function(event, ui) {
+			dropDraggedNode(folder);
+		}
+	} as any);
 	return $div;
 }
 
@@ -478,7 +515,12 @@ $(document).ready(function () {
 	}
 
 	const licenseViewCallback = () => {
-		const val = $('#license-select input:checked').val().toString();
+		const $val = $('#license-select input:checked').val();
+		if (!$val) {
+			console.error('empty license??');
+			return;
+		}
+		const val = $val.toString();
 		setLicenseFilter(val === 'any' ? undefined : val);
 	};
 	const licenseSelect = $('#license-select');
@@ -534,7 +576,11 @@ function renderPath(path, $path): void {
 	$path.empty();
 	['Home'].concat(path).forEach((e, i) => {
 		if (i === path.length) {
-			$path.append(e);
+			const $span = $('<span>', {
+				'class': 'path-working-folder',
+			});
+			$span.text(e);
+			$path.append($span);
 		} else {
 			const $button = $('<button>', {
 				'class': 'btn btn-path',
@@ -544,6 +590,17 @@ function renderPath(path, $path): void {
 				path.splice(i, path.length - i);
 				rerenderFilesystem();
 			});
+			let targetFolderNode = getCurrentFolder(path.slice(0, i));
+			$button.droppable({
+				accept: '.folder-image',
+				classes: {
+					"ui-droppable-active": "drop-target",
+					"ui-droppable-hover": "drop-target-hover",
+				},
+				drop: function(event, ui) {
+					dropDraggedNode(targetFolderNode);
+				},
+			} as any);
 			$path.append($button);
 			$path.append(' / ');
 		}
@@ -572,18 +629,26 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 	folder.images.forEach((image, i) => {
 		folderEmpty = false;
 		const $div = $(document.createElement('div'));
-		$div.attr('draggable', 'true');
+		// $div.attr('draggable', 'true');
 		// $div.prop('draggable', 'true');
 		// $div.prop('draggable', true);
-		const dragdata = JSON.stringify([path, i]);
-		console.log(dragdata);
-		$div.on('dragstart', (event) => {
-			console.log('dragstart');
-			(event.dataTransfer || event.originalEvent.dataTransfer).effectAllowed = "move";
-			(event.dataTransfer || event.originalEvent.dataTransfer).setData("text/plain", dragdata);
-			console.log('end dragstart');
-		});
+		const myDraggedNodePathInfo: DraggedNodePathInfo = {
+			path: path.slice(0),
+			isFolder: false,
+			index: i,
+		};
 		$div.addClass('folder-image');
+		$div.addClass('folder-draggable-node');
+		$div.draggable({
+			revert: 'invalid',
+			classes: {
+				"ui-draggable-dragging": "dragging",
+			},
+			stack: '.folder-draggable-node',
+			start: () => {
+				draggedNodePathInfo = myDraggedNodePathInfo;
+			},
+		} as any);
 		const $img = $('<img/>', {
 			src: image.filename,
 		});
@@ -599,7 +664,7 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 	});
 	folder.folders.forEach((subfolder, i) => {
 		folderEmpty = subfolder.images.length === 0 && subfolder.folders.length === 0;
-		$target.append(makeFolderElement(subfolder, () => {
+		$target.append(makeFolderElement(path, i, subfolder, () => {
 			path.push(subfolder.name);
 			rerenderFilesystem();
 		}, (e) => {
@@ -656,7 +721,7 @@ function getAllActiveFilters(): Filter[] {
 
 function updateSearchResults() {
 	$('#search-results').empty();
-	const query = $('#search-query').val();
+	const query = $('#search-query').val() || '';
 	const allActiveFilters = getAllActiveFilters();
 	/*if(query !== '' || allActiveFilters.length !== 0)*/ for (const image of images) {
 		if (matchesQuery(image, query.toString()) &&
@@ -727,7 +792,7 @@ function toggleViewFilterOn() {
 	updateViewFilterText();
 	updateSearchResults();
 }
-function toggleViewFilter(filter: string|undefined) {
+function toggleViewFilter(filter: string) {
 	if(viewFilter.has(filter)) viewFilter.delete(filter);
 	else viewFilter.add(filter);
 	updateViewFilterText();
@@ -740,7 +805,12 @@ function setLicenseFilter(filter: string|undefined) {
 }
 
 function attend(element: JQuery) {
-	element.on('animationend', (e) => { if(e.originalEvent.animationName === 'attention') {element.removeClass('attention'); console.log('removed'); }})
+	element.on('animationend', (e: JQuery.Event<HTMLElement, null>) => {
+		if (e.originalEvent.animationName === 'attention') {
+			element.removeClass('attention');
+			console.log('removed');
+		}
+	});
 }
 
 function makeFilter(key: string, name: string) {
@@ -787,7 +857,25 @@ function makeCloseButton(callback: () => void): JQuery {
 	return $closeButton;
 }
 
+interface LayoutInfo {
+	x: number;
+	y: number;
+	ratio: number; // from naturalWidth, naturalHeight
+	filename: string;
+	element: JQuery;
+}
+interface DragStatus {
+	type: 'move'|'nw'|'ne'|'sw'|'se';
+	x: number;
+	y: number;
+	key: number;
+}
+let layoutInfos: { [key: number]: LayoutInfo } = {};
+let nextLayoutInfoKey = 0;
+let dragging: DragStatus|undefined = undefined;
+
 function addImage(image: ImageNode): void {
+	const key = nextLayoutInfoKey++;
 	const $img = $('<div>');
 	$img.addClass('layout-image');
 	const $closeButton = makeCloseButton(() => $img.remove());
@@ -798,26 +886,172 @@ function addImage(image: ImageNode): void {
 		<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-se" id="segrip"></div>
 	`);
+	const rawImg = $img.find('img')[0] as HTMLImageElement;
+	const ratio = 0.1;
+	$img.css('width',  ratio * rawImg.naturalWidth  + 'px');
+	$img.css('height', ratio * rawImg.naturalHeight + 'px');
 	$img.append($closeButton);
-	$img.draggable();
-	$img.resizable({
-		aspectRatio: true,
-		handles: {
-			'nw': '.ui-resizable-nw',
-			'ne': '.ui-resizable-ne',
-			'sw': '.ui-resizable-sw',
-			'se': '.ui-resizable-se',
-		}
-	});
-	$img.mousedown(() => {
+	$img.mousedown((event) => {
+		if (dragging) return;
+		dragging = {
+			type: 'move',
+			x: event.clientX as number,
+			y: event.clientY as number,
+			key: key,
+		};
 		$('.layout-image').removeClass('layout-area-selected');
 		$img.addClass('layout-area-selected');
 		layout_counter+=1;
 		$img.css('z-index',layout_counter);
-
+		event.preventDefault();
+		event.stopPropagation();
 	});
+	// $img.find('.ui-resizable-handle').mouseup((event) => {
+		// dragging = undefined;
+	// });
+	$img.find('.ui-resizable-handle').mousedown((event) => {
+		let type: 'nw'|'ne'|'sw'|'se'|undefined = undefined;
+		if ($(event.target).hasClass('ui-resizable-nw')) {
+			type = 'nw';
+		} else if ($(event.target).hasClass('ui-resizable-ne')) {
+			type = 'ne';
+		} else if ($(event.target).hasClass('ui-resizable-sw')) {
+			type = 'sw';
+		} else if ($(event.target).hasClass('ui-resizable-se')) {
+			type = 'se';
+		}
+		if (type === undefined) {
+			console.error('bad handle resizing');
+			return;
+		}
+		dragging = {
+			type: type,
+			x: event.clientX as number,
+			y: event.clientY as number,
+			key: key,
+		};
+		$('.layout-image').removeClass('layout-area-selected');
+		$img.addClass('layout-area-selected');
+		layout_counter+=1;
+		$img.css('z-index',layout_counter);
+		event.preventDefault();
+		event.stopPropagation();
+	});
+	// $img.draggable();
+	// $img.resizable({
+	// 	aspectRatio: true,
+	// 	handles: {
+	// 		'nw': '.ui-resizable-nw',
+	// 		'ne': '.ui-resizable-ne',
+	// 		'sw': '.ui-resizable-sw',
+	// 		'se': '.ui-resizable-se',
+	// 	}
+	// });
 	$('.layout-area').append($img);
+	layoutInfos[key] = {
+		x: 0,
+		y: 0,
+		ratio: ratio,
+		filename: image.filename,
+		element: $img,
+	};
 }
+interface DragComputation {
+	x: number;
+	y: number;
+	ratio: number;
+	width: number;
+	height: number;
+}
+const MIN_LAYOUT_DIMENSION = 60;
+function dragCompute(info: LayoutInfo, event: JQuery.Event<HTMLElement, null>): DragComputation {
+	if (!dragging) {
+		console.error("Can't dragcompute when not dragging!");
+		return {} as DragComputation;
+	}
+	// x, y, w, h: original top-left corner and dimensions
+	let x: number = info.x;
+	let y: number = info.y;
+	let rawImg = info.element.find('img')[0] as HTMLImageElement;
+	let ratio: number = info.ratio;
+	let nw = rawImg.naturalWidth;
+	let nh = rawImg.naturalHeight;
+	let w = nw * ratio;
+	let h = nh * ratio;
+
+	// dragged displacement
+	let dx = event.clientX as number - dragging.x;
+	let dy = event.clientY as number - dragging.y;
+	let negX: boolean; // are we dragging one of the west corners?
+	let negY: boolean; // are we dragging one of the north corners?
+	if (dragging.type === 'nw') {
+		[negX, negY] = [true, true];
+	} else if (dragging.type === 'ne') {
+		[negX, negY] = [false, true];
+	} else if (dragging.type === 'sw') {
+		[negX, negY] = [true, false];
+	} else if (dragging.type === 'se') {
+		[negX, negY] = [false, false];
+	} else {
+		throw 'bad dragging';
+	}
+	// what the new width and height would be if we ignored aspect ratio
+	// constraints
+	let badW = negX ? w - dx : w + dx;
+	let badH = negY ? h - dy : h + dy;
+	// to get the right ratio, we average the two ratios computed from badW
+	// and badH
+	let avgRatio = ((badW / nw) + (badH / nh)) / 2;
+	// make sure the image doesn't get dragged past (0, 0)
+	if (negX) avgRatio = Math.min(avgRatio, (x + w) / nw);
+	if (negY) avgRatio = Math.min(avgRatio, (y + h) / nh);
+	// make sure the image doesn't get resized to arbitrarily small
+	avgRatio = Math.max(avgRatio, MIN_LAYOUT_DIMENSION / nw);
+	avgRatio = Math.max(avgRatio, MIN_LAYOUT_DIMENSION / nh);
+	// finally compute the new top-left corner
+	let newX = negX ? (x + w) - (avgRatio * nw) : x;
+	let newY = negY ? (y + h) - (avgRatio * nh) : y;
+	return {x: newX, y: newY, ratio: avgRatio, width: avgRatio * nw, height: avgRatio * nh};
+}
+$(document).mousemove((event) => {
+	if (!dragging) return;
+	let info = layoutInfos[dragging.key];
+	if (!info) {
+		console.error('Mouse-move on missing object!')
+		return;
+	}
+	if (dragging.type === 'move') {
+		info.element.css('transform', `translate(${Math.max(0, info.x + (event.clientX as number) - dragging.x)}px, ${Math.max(0, info.y + (event.clientY as number) - dragging.y)}px)`);
+	} else {
+		console.log('old', info.x, info.y, info.ratio);
+		let {x, y, ratio, width, height} = dragCompute(info, event);
+		info.element.css('transform', `translate(${x}px, ${y}px)`);
+		info.element.css('width',  width  + 'px');
+		info.element.css('height', height + 'px');
+	}
+});
+$(document).mouseup((event: JQuery.Event<HTMLElement, null>) => {
+	if (!dragging) return;
+	const key = dragging.key;
+	let info = layoutInfos[key];
+	if (!info) {
+		console.error('Mouse-up on missing object!')
+		return;
+	}
+	if (dragging.type === 'move') {
+		info.x += event.clientX as number - dragging.x;
+		info.y += event.clientY as number - dragging.y;
+		info.x = Math.max(info.x, 0);
+		info.y = Math.max(info.y, 0);
+	} else {
+		let {x, y, ratio, width, height} = dragCompute(info, event);
+		info.x = x;
+		info.y = y;
+		info.ratio = ratio;
+	}
+	dragging = undefined;
+	event.preventDefault();
+});
 
 $(document).ready(() => {
 	$('.modal-outer').click(function (e) {
@@ -847,6 +1081,9 @@ $(document).ready(() => {
 			$('#add-viewer-outer').hide();
 			$('#new-image-triangle').html('&#x25BC;');
 		}
+	});
+	$(document).mousedown(function (e) {
+		$('.layout-image').removeClass('layout-area-selected');
 	});
 	rerenderFilesystem();
 });
