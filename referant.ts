@@ -253,10 +253,38 @@ function dtOf(event: JQuery.Event<HTMLElement, null>): any {
 	return (event as any).dataTransfer || (event as any).originalEvent.dataTransfer;
 }
 
-function makeFolderElement(folder: FolderNode, callback: () => void,
+interface DraggedNodePathInfo {
+	path: string[];
+	isFolder: boolean;
+	index: number;
+}
+
+let draggedNodePathInfo: DraggedNodePathInfo|undefined = undefined;
+
+function dropDraggedNode(targetFolder: FolderNode) {
+	if (draggedNodePathInfo) {
+		console.log('drop!');
+		let {path, isFolder, index} = draggedNodePathInfo;
+		console.log(path, isFolder, index);
+		let sourceFolder = getCurrentFolder(path);
+		if (isFolder) {
+			let movingFolder = sourceFolder.folders[index];
+			sourceFolder.folders.splice(index, 1);
+			targetFolder.folders.push(movingFolder);
+		} else {
+			let image = sourceFolder.images[index];
+			sourceFolder.images.splice(index, 1);
+			targetFolder.images.push(image);
+		}
+		rerenderFilesystem();
+	}
+}
+
+function makeFolderElement(folderPath: string[], i: number, folder: FolderNode, callback: () => void,
 		closeCallback: (e?: any) => void) : JQuery {
 	let $div = $(document.createElement('div'));
 	$div.addClass('folder');
+	$div.addClass('folder-draggable-node');
 	let $img = $(document.createElement('img'));
 	$img.attr('src', 'folders.png');
 	let label = $(document.createElement('span'));
@@ -265,26 +293,31 @@ function makeFolderElement(folder: FolderNode, callback: () => void,
 	$div.append(label);
 	$div.append(makeCloseButton(closeCallback));
 	$div.click(callback);
-	$div.on('dragover', (event) => {
-		event.preventDefault();
-		dtOf(event).dropEffect = "move";
-		console.log('dragover');
-		return false;
-	});
-	$div.on('drop', (event) => {
-		event.stopPropagation();
-		// event.preventDefault();
-		console.log('drop');
-		const dt = dtOf(event);
-		let [path, i] = JSON.parse(dt.getData("text/plain"));
-		console.log(path, i);
-		let sourceFolder = getCurrentFolder(path);
-		let image = sourceFolder.images[i];
-		sourceFolder.images.splice(i, 1);
-		folder.images.push(image);
-		rerenderFilesystem();
-		return false;
-	});
+	const myDraggedNodePathInfo: DraggedNodePathInfo = {
+		path: folderPath.slice(0),
+		isFolder: true,
+		index: i,
+	};
+	$div.draggable({
+		revert: 'invalid',
+		classes: {
+			"ui-draggable-dragging": "dragging",
+		},
+		stack: '.folder-draggable-node',
+		start: () => {
+			draggedNodePathInfo = myDraggedNodePathInfo;
+		},
+	} as any);
+	$div.droppable({
+		accept: '.folder-draggable-node',
+		classes: {
+			"ui-droppable-active": "drop-target",
+			"ui-droppable-hover": "drop-target-hover",
+		},
+		drop: function(event, ui) {
+			dropDraggedNode(folder);
+		}
+	} as any);
 	return $div;
 }
 
@@ -543,7 +576,11 @@ function renderPath(path, $path): void {
 	$path.empty();
 	['Home'].concat(path).forEach((e, i) => {
 		if (i === path.length) {
-			$path.append(e);
+			const $span = $('<span>', {
+				'class': 'path-working-folder',
+			});
+			$span.text(e);
+			$path.append($span);
 		} else {
 			const $button = $('<button>', {
 				'class': 'btn btn-path',
@@ -553,6 +590,17 @@ function renderPath(path, $path): void {
 				path.splice(i, path.length - i);
 				rerenderFilesystem();
 			});
+			let targetFolderNode = getCurrentFolder(path.slice(0, i));
+			$button.droppable({
+				accept: '.folder-image',
+				classes: {
+					"ui-droppable-active": "drop-target",
+					"ui-droppable-hover": "drop-target-hover",
+				},
+				drop: function(event, ui) {
+					dropDraggedNode(targetFolderNode);
+				},
+			} as any);
 			$path.append($button);
 			$path.append(' / ');
 		}
@@ -581,18 +629,26 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 	folder.images.forEach((image, i) => {
 		folderEmpty = false;
 		const $div = $(document.createElement('div'));
-		$div.attr('draggable', 'true');
+		// $div.attr('draggable', 'true');
 		// $div.prop('draggable', 'true');
 		// $div.prop('draggable', true);
-		const dragdata = JSON.stringify([path, i]);
-		console.log(dragdata);
-		$div.on('dragstart', (event) => {
-			console.log('dragstart');
-			dtOf(event).effectAllowed = "move";
-			dtOf(event).setData("text/plain", dragdata);
-			console.log('end dragstart');
-		});
+		const myDraggedNodePathInfo: DraggedNodePathInfo = {
+			path: path.slice(0),
+			isFolder: false,
+			index: i,
+		};
 		$div.addClass('folder-image');
+		$div.addClass('folder-draggable-node');
+		$div.draggable({
+			revert: 'invalid',
+			classes: {
+				"ui-draggable-dragging": "dragging",
+			},
+			stack: '.folder-draggable-node',
+			start: () => {
+				draggedNodePathInfo = myDraggedNodePathInfo;
+			},
+		} as any);
 		const $img = $('<img/>', {
 			src: image.filename,
 		});
@@ -608,7 +664,7 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 	});
 	folder.folders.forEach((subfolder, i) => {
 		folderEmpty = subfolder.images.length === 0 && subfolder.folders.length === 0;
-		$target.append(makeFolderElement(subfolder, () => {
+		$target.append(makeFolderElement(path, i, subfolder, () => {
 			path.push(subfolder.name);
 			rerenderFilesystem();
 		}, (e) => {
