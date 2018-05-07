@@ -607,9 +607,10 @@ function renderPath(path, $path): void {
 }
 
 function fillErrorModal(folderName: string) {
-	$('#error-modal-contents').text(folderName);
-	$('#error-modal-contents-1').text(folderName);
-	$('#error-modal-contents-2').text(folderName);
+	$('span.error-modal-contents').each((_, thing) => {
+		console.log(thing);
+		$(thing).text(folderName);
+	});
 }
 
 function attachToErrorModal(callback: (e?: any) => void) {

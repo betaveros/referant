@@ -88,7 +88,8 @@
 					<div class="modal-side">
 						<div class="filename">dog1.jpg</div>
 						<div class="description">Tags: ...</div>
-						<button class="btn" id="add-to-folders">Add to Folder</button>
+						<button class="btn" id="add-to-home">Add to Home Folder</button>
+						<button class="btn" id="add-to-folders">Add to Folders <span id="triangle"> &#x25BC; </span></button>
 						<button class="btn" id="return-to-search">Return to Search</button>
 					</div>
 				</div>
@@ -163,10 +164,10 @@
 		<div class="modal-bg">
 			<div>
 				<h4>
-					The folder &ldquo;<span id="error-modal-contents"></span>&rdquo; is not empty. Do you want to delete it anyway?
+					The folder &ldquo;<span class="error-modal-contents"></span>&rdquo; is not empty. Do you want to delete it anyway?
 				</h4>
-				<button class="btn" id="error-modal-delete">Yes, delete &ldquo;<span id="error-modal-contents-1"></span>&rdquo;</button>
-				<button class="btn" id="error-modal-keep">No, keep &ldquo;<span id="error-modal-contents-2"></span>&rdquo;</button>
+				<button class="btn" id="error-modal-delete">Yes, delete &ldquo;<span class="error-modal-contents"></span>&rdquo;</button>
+				<button class="btn" id="error-modal-keep">No, keep &ldquo;<span class="error-modal-contents"></span>&rdquo;</button>
 			</div>
 		</div>
 	</div>
