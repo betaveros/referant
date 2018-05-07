@@ -48,6 +48,12 @@ body {
 .nav-tab:hover, .about:hover {
 	background-color: hsl(212,14%,34%);
 }
+a.nav-link:link, a.nav-link:visited {
+	color: #def;
+}
+a.nav-link:hover {
+	color: #eef;
+}
 .sidebar > .nav-selected {
 	background-color: hsl(210,24%,25%);
 }

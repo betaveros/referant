@@ -221,12 +221,14 @@ function getCurrentFolder(path: string[]): FolderNode {
 // 	return ret;
 // }
 
-$('.nav-tab').click(function () {
+$('.nav-link').click(function () {
 	$('.nav-tab').removeClass('nav-selected');
-	let $tab = $(this);
+	let $link = $(this);
+	let tabName = $link.data('tab');
+	let $tab = $(`.nav-tab[data-tab="${tabName}"]`);
 	$tab.addClass('nav-selected');
 	$('.main-tab').hide();
-	$('.' + $tab.data('tab')).show();
+	$('.' + tabName).show();
 });
 $('#about').click(() => {
 	$('#about-modal').show();
