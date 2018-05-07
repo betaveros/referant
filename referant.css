@@ -68,7 +68,9 @@ body {
 .content h4{
 	color: white;
 }
-
+#maintitle{
+    text-align: center;
+}
 .filter-label {
 	margin-right: .5em;
 }
@@ -76,6 +78,7 @@ body {
 .main-home img, .search-results img, .folder-display img {
 	max-height: 18rem;
 }
+
 .popular{
 	display:grid;
 	grid-template-columns: repeat(3, 1fr);
@@ -87,6 +90,11 @@ body {
 }
 .popular > img {
 	width: 90%;
+}
+.homehelp{
+  	background-color: hsl(212,4%,43%);
+  	padding: 10px;
+  	border-radius: 1em;
 }
 .main-search, .main-folders, .main-layout {
 	display: none;
