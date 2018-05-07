@@ -23,6 +23,7 @@ body {
     padding: 50px 0px 20px 0px;
     user-select: none;
     -webkit-user-select: none;
+	z-index: 9001;
 	/* justify-content: space-around; */
 }
 .sidebar > * {
@@ -83,6 +84,30 @@ a.nav-link:hover {
 
 .main-home img, .search-results img, .folder-display img {
 	max-height: 18rem;
+}
+
+.home-block {
+	display: block;
+	font-size: 150%;
+	text-decoration: none;
+	position: relative;
+	margin: 0 0 0.5em;
+}
+.home-block strong {
+	display: block;
+	float: left;
+	font-size: 250%;
+	margin: 0 0.35em 0.1em 0;
+}
+.home-block img {
+	display: block;
+	float: right;
+	height: 120px;
+}
+.home-block:after {
+	display: block;
+	content: " ";
+	clear: both;
 }
 
 .popular{

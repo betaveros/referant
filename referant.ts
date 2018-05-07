@@ -230,9 +230,6 @@ $('.nav-link').click(function () {
 	$('.main-tab').hide();
 	$('.' + tabName).show();
 });
-$('#about').click(() => {
-	$('#about-modal').show();
-});
 
 let shown : boolean = false;
 $('#search-dialog').hide();
