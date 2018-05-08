@@ -103,19 +103,14 @@ a.nav-link:hover {
 .home-block strong {
 	display: block;
 	white-space: pre;
-	float: left;
 	font-size: 250%;
 	margin: 0 0.35em;
 }
-.home-block img {
-	display: block;
-	float: right;
-	height: 120px;
+.home-block span {
+	flex-grow: 1;
 }
-.home-block:after {
-	display: block;
-	content: " ";
-	clear: both;
+.home-block img {
+	height: 120px;
 }
 
 .popular{

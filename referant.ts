@@ -549,6 +549,7 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 }
 
 let addViewerShown : boolean = true;
+const DEFAULT_RATIO = 0.1;
 function rerenderFilesystem(): void {
 	rerenderFilesystemViewer(filesystemPath,
 		$('#filesystem-path'),
@@ -558,7 +559,12 @@ function rerenderFilesystem(): void {
 		$('#add-viewer'),
 		"You don't have any images in this folder you can add! Go to Folders to find and add an image first.",
 		(image) => {
-			addImage(image);
+			addImage({
+				x: 0,
+				y: 0,
+				ratio: DEFAULT_RATIO,
+				filename: image.filename,
+			});
 			addViewerShown = false;
 			$('#add-viewer-outer').hide();
 			$('#new-image-triangle').html('&#x25BC;');
@@ -863,6 +869,16 @@ interface LayoutInfo {
 	filename: string;
 	element: JQuery;
 }
+interface SerializedLayoutInfo {
+	x: number;
+	y: number;
+	ratio: number;
+	filename: string;
+}
+function serializedCopy(layoutInfo: LayoutInfo): SerializedLayoutInfo {
+	let {x, y, ratio, filename, element} = layoutInfo;
+	return {x, y, ratio, filename};
+}
 interface DragStatus {
 	type: 'move'|'nw'|'ne'|'sw'|'se';
 	x: number;
@@ -873,22 +889,28 @@ let layoutInfos: { [key: number]: LayoutInfo } = {};
 let nextLayoutInfoKey = 0;
 let dragging: DragStatus|undefined = undefined;
 
-function addImage(image: ImageNode): void {
+function addImage(info: SerializedLayoutInfo): void {
+	const {x, y, ratio, filename} = info;
 	const key = nextLayoutInfoKey++;
 	const $img = $('<div>');
 	$img.addClass('layout-image');
-	const $closeButton = makeCloseButton(() => $img.remove());
+	const $closeButton = makeCloseButton(() => {
+		$img.remove();
+		delete layoutInfos[key];
+	});
+	// TODO I guess we don't have time to architect around sensible alt
+	// text...
 	$img.append(`
-		<img src="${image.filename}" alt="${image.name}">
+		<img src="${info.filename}" alt="${info.filename}">
 		<div class="ui-resizable-handle ui-resizable-nw" id="nwgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-ne" id="negrip"></div>
 		<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-se" id="segrip"></div>
 	`);
 	const rawImg = $img.find('img')[0] as HTMLImageElement;
-	const ratio = 0.1;
 	$img.css('width',  ratio * rawImg.naturalWidth  + 'px');
 	$img.css('height', ratio * rawImg.naturalHeight + 'px');
+	$img.css('transform', `translate(${x}px, ${y}px)`);
 	$img.append($closeButton);
 	$img.mousedown((event) => {
 		if (dragging) return;
@@ -905,9 +927,6 @@ function addImage(image: ImageNode): void {
 		event.preventDefault();
 		event.stopPropagation();
 	});
-	// $img.find('.ui-resizable-handle').mouseup((event) => {
-		// dragging = undefined;
-	// });
 	$img.find('.ui-resizable-handle').mousedown((event) => {
 		let type: 'nw'|'ne'|'sw'|'se'|undefined = undefined;
 		if ($(event.target).hasClass('ui-resizable-nw')) {
@@ -936,22 +955,12 @@ function addImage(image: ImageNode): void {
 		event.preventDefault();
 		event.stopPropagation();
 	});
-	// $img.draggable();
-	// $img.resizable({
-	// 	aspectRatio: true,
-	// 	handles: {
-	// 		'nw': '.ui-resizable-nw',
-	// 		'ne': '.ui-resizable-ne',
-	// 		'sw': '.ui-resizable-sw',
-	// 		'se': '.ui-resizable-se',
-	// 	}
-	// });
 	$('.layout-area').append($img);
 	layoutInfos[key] = {
-		x: 0,
-		y: 0,
+		x: x,
+		y: y,
 		ratio: ratio,
-		filename: image.filename,
+		filename: filename,
 		element: $img,
 	};
 }
@@ -1079,6 +1088,21 @@ $(document).ready(() => {
 		} else {
 			$('#add-viewer-outer').hide();
 			$('#new-image-triangle').html('&#x25BC;');
+		}
+	});
+	let savedLayout: SerializedLayoutInfo[]|undefined;
+	$('#save-layout-button').click(() => {
+		savedLayout = Object.keys(layoutInfos).map((k) => serializedCopy(layoutInfos[k]));
+	});
+	$('#load-layout-button').click(() => {
+		if (savedLayout) {
+			for (let k in layoutInfos) {
+				layoutInfos[k].element.remove();
+				delete layoutInfos[k];
+			}
+			for (let info of savedLayout) {
+				addImage(info);
+			}
 		}
 	});
 	$(document).mousedown(function (e) {
