@@ -87,17 +87,25 @@ a.nav-link:hover {
 }
 
 .home-block {
-	display: block;
+	display: flex;
+	flex-direction: flex-row;
+	align-items: center;
 	font-size: 150%;
 	text-decoration: none;
 	position: relative;
 	margin: 0 0 0.5em;
+	background-color: hsl(210,39%,17%);
+	border-radius: 1em;
+}
+.home-block:hover {
+	background-color: hsl(212,20%,24%);
 }
 .home-block strong {
 	display: block;
+	white-space: pre;
 	float: left;
 	font-size: 250%;
-	margin: 0 0.35em 0.1em 0;
+	margin: 0 0.35em;
 }
 .home-block img {
 	display: block;
