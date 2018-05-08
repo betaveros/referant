@@ -194,7 +194,8 @@ const emptyRoot : FolderNode = {
 const exampleRoot : FolderNode = {"name":"root","images":[],"folders":[{"name":"Example Folder","images":[{"name":"red-daisy.jpg","filename":"red-daisy.jpg"},{"name":"shark.jpg","filename":"shark.jpg"}],"folders":[{"name":"Example Subfolder","images":[{"name":"moon.jpg","filename":"moon.jpg"}],"folders":[]}]}]}
 let filesystemRoot = exampleRoot;
 let filesystemPath: string[] = [];
-let addViewerPath: string[] = []
+let addViewerPath: string[] = [];
+let searchAddPath: string[] = [];
 
 function getCurrentFolder(path: string[]): FolderNode {
 	let cur = filesystemRoot;
@@ -569,6 +570,9 @@ function rerenderFilesystem(): void {
 			$('#add-viewer-outer').hide();
 			$('#new-image-triangle').html('&#x25BC;');
 		});
+	rerenderFilesystemViewer(searchAddPath,
+		$('#search-add-filesystem-path'),
+		$('#search-add-filesystem-viewer'));
 }
 function rerenderFilesystemViewer(path: string[], $path: JQuery, $viewer: JQuery,
 	emptyMsg?: string,
@@ -621,6 +625,7 @@ function fillErrorModal(folderName: string) {
 function attachToErrorModal(callback: (e?: any) => void) {
 	$('#error-modal-delete').click(function(e) {
 		callback(e);
+		$('.modal-outer').hide();
 	});
 	$('#error-modal').click(function() {
 		$('#error-modal-delete').off('click');
@@ -1062,22 +1067,31 @@ $(document).mouseup((event: JQuery.Event<HTMLElement, null>) => {
 });
 
 $(document).ready(() => {
-	$('.modal-outer').click(function (e) {
-		if(e.target.id === 'modal-bg' || e.target.id === 'return-to-search') $(this).hide();
-		$(this).hide();
+	$('.modal-outer').click((e) => {
 		e.stopPropagation();
+	});
+	$('.close-modal').click((e) => {
+		$('.modal-outer').hide();
 	});
 	$('#add-to-folders').click(() => {
 		if (focusedSearchImage) {
-			// wow such haxx
-			getCurrentFolder(filesystemPath).images.push({
+			$('#search-add-modal img.focused').attr('src',
+				focusedSearchImage.filename);
+			$('#search-add-modal .filename').text(
+				focusedSearchImage.filename);
+			$('#search-add-modal').show();
+		}
+		$('#search-modal').hide();
+	});
+	$('#search-add-button').click(() => {
+		if (focusedSearchImage) {
+			getCurrentFolder(searchAddPath).images.push({
 				name: focusedSearchImage.filename,
 				filename: focusedSearchImage.filename,
-				// contents: undefined,
 			});
-		};
-		rerenderFilesystem();
-		$('#search-modal').hide();
+			rerenderFilesystem();
+		}
+		$('#search-add-modal').hide();
 	});
 	$('#new-image-button').click(() => {
 		rerenderFilesystem();

@@ -80,14 +80,29 @@
 				</div>
 			</div>
 			<div class="modal-outer" id="search-modal">
-				<div class="modal-bg" id="modal-bg">
+				<div class="modal-bg">
 					<img src="dog1.jpg" alt="dog">
 					<div class="modal-side">
 						<div class="filename">dog1.jpg</div>
 						<div class="description">Tags: ...</div>
-						<button class="btn" id="add-to-folders">Add to Folder</button>
-						<button class="btn" id="return-to-search">Return to Search</button>
+						<button class="btn" id="add-to-folders">Add to Folder...</button>
+						<button class="btn close-modal">Return to Search</button>
 					</div>
+				</div>
+			</div>
+			<div class="modal-outer" id="search-add-modal">
+				<div class="modal-bg modal-vertical">
+					<div class="modal-top-side">
+						<img src="dog1.jpg" alt="dog">
+						<div class="filename">dog1.jpg</div>
+					</div>
+					<div id="search-add-filesystem-path-outer">Current location:
+						<span id="search-add-filesystem-path"></span>
+					</div>
+					<div class = "folder-display" id="search-add-filesystem-viewer">
+					</div>
+					<div><button class="btn close-modal">Cancel</button>
+						<button class="btn" id="search-add-button">Add to Folder</button></div>
 				</div>
 			</div>
 		</div>
@@ -165,7 +180,7 @@
 					The folder &ldquo;<span id="error-modal-contents"></span>&rdquo; is not empty. Do you want to delete it anyway?
 				</h4>
 				<button class="btn" id="error-modal-delete">Yes, delete &ldquo;<span id="error-modal-contents-1"></span>&rdquo;</button>
-				<button class="btn" id="error-modal-keep">No, keep &ldquo;<span id="error-modal-contents-2"></span>&rdquo;</button>
+				<button class="btn close-modal">No, keep &ldquo;<span id="error-modal-contents-2"></span>&rdquo;</button>
 			</div>
 		</div>
 	</div>
