@@ -739,14 +739,25 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string,
 			src: image.filename,
 		});
 		$div.append($img);
-		$div.append(makeCloseButton(() => {
+		let $close = makeCloseButton(() => {
 			folder.images.splice(i, 1);
 			rerenderFilesystem();
-		}));
+		});
+		$div.append($close);
 		if (imageCallback) {
 			$img.click(() => imageCallback(image));
 		}
 		$target.append($div);
+
+		// here there be dragons.
+		let rawImg = $img[0] as HTMLImageElement;
+		let cw = rawImg.clientWidth;
+		let ch = rawImg.clientHeight;
+		let nw = rawImg.naturalWidth;
+		let nh = rawImg.naturalHeight;
+		let r = Math.min(cw / nw, ch / nh);
+		$close.css('top' , `${12 + (ch - nh*r)/2}px`);
+		$close.css('left', `${12 + (cw - nw*r)/2}px`);
 	});
 	folder.layouts.forEach((layout, i) => {
 		$target.append(makeLayoutElement(path, i, layout, () => {

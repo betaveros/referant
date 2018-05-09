@@ -225,9 +225,11 @@ input.folder-name {
 	margin: 0;
 	font-size: 75%;
 	background-color: #c00;
+	border: 1px solid #e00;
 }
 .close:hover {
 	background-color: #f00;
+	border: 1px solid #f22;
 }
 .folder:hover .close, .folder-image:hover .close, .layout-image.layout-area-selected .close, .layout-image:hover .close {
 	display: block;
