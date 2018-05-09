@@ -1341,6 +1341,9 @@ $(document).ready(() => {
 			$('#layout-add-triangle').html('&#x25BC;');
 		}
 	})
+	$('#add-viewer-outer').click( function(e) {
+		e.stopPropagation();
+	});
 	let savedLayout: SerializedLayoutInfo[]|undefined;
 	$('#save-layout-button').click(() => {
 		$('#save-layout-modal').show();
