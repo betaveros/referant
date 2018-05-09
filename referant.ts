@@ -1267,6 +1267,8 @@ $(document).ready(() => {
 		e.stopPropagation();
 	});
 	$('.close-modal').click((e) => {
+		e.preventDefault();
+		e.stopPropagation();
 		$('.modal-outer').hide();
 	});
 	$('#add-to-folders').click(() => {
