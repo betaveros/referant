@@ -1080,6 +1080,7 @@ interface DragStatus {
 }
 let layoutInfos: { [key: number]: LayoutInfo } = {};
 let nextLayoutInfoKey = 0;
+let selected : number|undefined = undefined;
 let dragging: DragStatus|undefined = undefined;
 
 function addImage(info: SerializedLayoutInfo): void {
@@ -1115,6 +1116,7 @@ function addImage(info: SerializedLayoutInfo): void {
 		};
 		$('.layout-image').removeClass('layout-area-selected');
 		$img.addClass('layout-area-selected');
+		selected = key;
 		layout_counter+=1;
 		$img.css('z-index',layout_counter);
 		event.preventDefault();
@@ -1143,6 +1145,7 @@ function addImage(info: SerializedLayoutInfo): void {
 		};
 		$('.layout-image').removeClass('layout-area-selected');
 		$img.addClass('layout-area-selected');
+		selected = key;
 		layout_counter+=1;
 		$img.css('z-index',layout_counter);
 		event.preventDefault();
@@ -1373,6 +1376,17 @@ $(document).ready(() => {
 	});
 	$(document).mousedown(function (e) {
 		$('.layout-image').removeClass('layout-area-selected');
+		selected = undefined;
 	});
+	$(document).on('keyup', function(e) {
+		if(e.keyCode === 8) {
+			console.log(selected);
+			if(selected !== undefined) {
+				$('.layout-area-selected').remove();
+				delete layoutInfos[selected];
+				selected = undefined;
+			}
+		}
+	})
 	rerenderFilesystem();
 });
