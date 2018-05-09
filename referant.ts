@@ -749,15 +749,19 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string,
 		}
 		$target.append($div);
 
-		// here there be dragons.
-		let rawImg = $img[0] as HTMLImageElement;
-		let cw = rawImg.clientWidth;
-		let ch = rawImg.clientHeight;
-		let nw = rawImg.naturalWidth;
-		let nh = rawImg.naturalHeight;
-		let r = Math.min(cw / nw, ch / nh);
-		$close.css('top' , `${12 + (ch - nh*r)/2}px`);
-		$close.css('left', `${12 + (cw - nw*r)/2}px`);
+		function repositionClose() {
+			// here there be dragons.
+			let rawImg = $img[0] as HTMLImageElement;
+			let cw = rawImg.clientWidth;
+			let ch = rawImg.clientHeight;
+			let nw = rawImg.naturalWidth;
+			let nh = rawImg.naturalHeight;
+			let r = Math.min(cw / nw, ch / nh);
+			$close.css('top' , `${12 + (ch - nh*r)/2}px`);
+			$close.css('left', `${12 + (cw - nw*r)/2}px`);
+		}
+		$img.mouseover(repositionClose);
+		repositionClose();
 	});
 	folder.layouts.forEach((layout, i) => {
 		$target.append(makeLayoutElement(path, i, layout, () => {
