@@ -757,7 +757,7 @@ function renderPath(path, $path): void {
 			});
 			let targetFolderNode = getCurrentFolder(path.slice(0, i));
 			$button.droppable({
-				accept: '.folder-image',
+				accept: '.folder-draggable-node',
 				classes: {
 					"ui-droppable-active": "drop-target",
 					"ui-droppable-hover": "drop-target-hover",
