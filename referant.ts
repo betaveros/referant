@@ -172,29 +172,171 @@ const images: Image[] = [
 		keywords: ['moon', 'night', 'sky', 'astronomy'],
 		colors: ['gray'],
 		license: ['reuse'],
-	}
+	},
+	{
+		filename: 'cat-in-chair.jpg',
+		keywords: ['tabby', 'cat'],
+		colors: ['orange'],
+		license: ['reuse'],
+		view: ['front'],
+	},
+	{
+		filename: 'red-fox.jpg',
+		keywords: ['fox'],
+		colors: ['orange'],
+		license: ['reuse'],
+		view: ['front'],
+	},
+	{
+		filename: 'fox-portrait.jpg',
+		keywords: ['fox'],
+		colors: ['orange'],
+		license: ['reuse'],
+		view: ['side'],
+	},
+	{
+		filename: 'hong-kong-night-market.jpg',
+		keywords: ['market'],
+		colors: ['orange'],
+	},
+	{
+		filename: 'match.jpg',
+		keywords: ['match', 'fire'],
+		colors: ['orange'],
+	},
+	{
+		filename: 'fish.jpg',
+		keywords: ['fish'],
+		colors: ['blue'],
+	},
+	{
+		filename: 'purple-water-lily.jpg',
+		keywords: ['flower'],
+		colors: ['purple'],
+	},
+	{
+		filename: 'purple-rocky-coast.jpg',
+		keywords: ['rock', 'coast', 'mist'],
+		colors: ['purple'],
+	},
+	{
+		filename: 'grapes.jpg',
+		keywords: ['fruit', 'grape'],
+		colors: ['purple'],
+	},
+	{
+		filename: 'strawberries.jpg',
+		keywords: ['fruit', 'strawberry'],
+		colors: ['red'],
+	},
+	{
+		filename: 'butterfly.jpg',
+		keywords: ['insect', 'butterfly'],
+		colors: ['yellow', 'black'],
+	},
+	{
+		filename: 'peach.jpg',
+		keywords: ['fruit', 'peach'],
+		colors: ['yellow', 'red'],
+	},
+	{
+		filename: 'banana.jpg',
+		keywords: ['fruit', 'banana'],
+		colors: ['yellow'],
+	},
+	{
+		filename: 'butterfly-2.jpg',
+		keywords: ['insect', 'butterfly'],
+		colors: ['yellow', 'black', 'blue', 'orange'],
+	},
+	{
+		filename: 'bulbs.jpg',
+		keywords: ['vegetable', 'onion', 'garlic'],
+		colors: ['purple', 'white', 'orange'],
+	},
+	{
+		filename: 'ford.jpg',
+		keywords: ['car', 'ford'],
+		colors: ['red'],
+	},
+	{
+		filename: 'meadow.jpg',
+		keywords: ['grass'],
+		colors: ['green'],
+	},
+	{
+		filename: 'kitty.jpg',
+		keywords: ['kitten', 'cat', 'flower'],
+		colors: ['gray', 'white'],
+	},
+	{
+		filename: 'elephants.jpg',
+		keywords: ['elephant'],
+		colors: ['gray'],
+	},
+	{
+		filename: 'wolf.jpg',
+		keywords: ['wolf'],
+		colors: ['gray'],
+	},
 ];
 
 interface FolderNode {
 	name: string;
 	images: ImageNode[];
 	folders: FolderNode[];
+	layouts: LayoutNode[];
 }
 interface ImageNode {
 	filename: string;
 	name: string;
 }
+interface LayoutNode {
+	name: string;
+	infos: SerializedLayoutInfo[];
+}
 
 let layout_counter = 0;
-const emptyRoot : FolderNode = {
-	name: 'root',
-	images: [],
-	folders: [],
+const exampleRoot : FolderNode = {
+	"name": "root",
+	"images": [],
+	"folders": [
+		{
+			"name": "Example Folder",
+			"images": [
+				{
+					"name": "red-daisy.jpg",
+					"filename": "red-daisy.jpg"
+				},
+				{
+					"name": "shark.jpg",
+					"filename": "shark.jpg"
+				}
+			],
+			"folders": [
+				{
+					"name": "Example Subfolder",
+					"images": [
+						{
+							"name": "moon.jpg",
+							"filename": "moon.jpg"
+						}
+					],
+					"folders": [],
+					"layouts": [],
+				}
+			],
+			"layouts": [],
+		}
+	],
+	"layouts": [
+	],
 };
-const exampleRoot : FolderNode = {"name":"root","images":[],"folders":[{"name":"Example Folder","images":[{"name":"red-daisy.jpg","filename":"red-daisy.jpg"},{"name":"shark.jpg","filename":"shark.jpg"}],"folders":[{"name":"Example Subfolder","images":[{"name":"moon.jpg","filename":"moon.jpg"}],"folders":[]}]}]}
 let filesystemRoot = exampleRoot;
 let filesystemPath: string[] = [];
-let addViewerPath: string[] = []
+let addViewerPath: string[] = [];
+let searchAddPath: string[] = [];
+let saveLayoutPath: string[] = [];
 
 function getCurrentFolder(path: string[]): FolderNode {
 	let cur = filesystemRoot;
@@ -254,7 +396,7 @@ function dtOf(event: JQuery.Event<HTMLElement, null>): any {
 
 interface DraggedNodePathInfo {
 	path: string[];
-	isFolder: boolean;
+	type: "image"|"folder"|"layout";
 	index: number;
 }
 
@@ -263,17 +405,21 @@ let draggedNodePathInfo: DraggedNodePathInfo|undefined = undefined;
 function dropDraggedNode(targetFolder: FolderNode) {
 	if (draggedNodePathInfo) {
 		console.log('drop!');
-		let {path, isFolder, index} = draggedNodePathInfo;
-		console.log(path, isFolder, index);
+		let {path, type, index} = draggedNodePathInfo;
+		console.log(path, type, index);
 		let sourceFolder = getCurrentFolder(path);
-		if (isFolder) {
+		if (type === "folder") {
 			let movingFolder = sourceFolder.folders[index];
 			sourceFolder.folders.splice(index, 1);
 			targetFolder.folders.push(movingFolder);
-		} else {
+		} else if (type === "image") {
 			let image = sourceFolder.images[index];
 			sourceFolder.images.splice(index, 1);
 			targetFolder.images.push(image);
+		} else {
+			let layout = sourceFolder.layouts[index];
+			sourceFolder.layouts.splice(index, 1);
+			targetFolder.layouts.push(layout);
 		}
 		rerenderFilesystem();
 	}
@@ -294,7 +440,7 @@ function makeFolderElement(folderPath: string[], i: number, folder: FolderNode, 
 	$div.click(callback);
 	const myDraggedNodePathInfo: DraggedNodePathInfo = {
 		path: folderPath.slice(0),
-		isFolder: true,
+		type: 'folder',
 		index: i,
 	};
 	$div.draggable({
@@ -319,33 +465,37 @@ function makeFolderElement(folderPath: string[], i: number, folder: FolderNode, 
 	} as any);
 	return $div;
 }
+function makeLayoutElement(folderPath: string[], i: number, layout: LayoutNode, callback: () => void,
+		closeCallback: (e?: any) => void) : JQuery {
+	let $div = $(document.createElement('div'));
+	$div.addClass('folder');
+	$div.addClass('folder-draggable-node');
+	let $img = $(document.createElement('img'));
+	$img.attr('src', 'layouts.png');
+	let label = $(document.createElement('span'));
+	label.text(layout.name);
+	$div.append($img);
+	$div.append(label);
+	$div.append(makeCloseButton(closeCallback));
+	$div.click(callback);
+	const myDraggedNodePathInfo: DraggedNodePathInfo = {
+		path: folderPath.slice(0),
+		type: 'layout',
+		index: i,
+	};
+	$div.draggable({
+		revert: 'invalid',
+		classes: {
+			"ui-draggable-dragging": "dragging",
+		},
+		stack: '.folder-draggable-node',
+		start: () => {
+			draggedNodePathInfo = myDraggedNodePathInfo;
+		},
+	} as any);
+	return $div;
+}
 
-const folderErrorText = $('#folder-name-error-text');
-attend(folderErrorText);
-
-$('#new-folder-form').on('submit', function (e) {
-	e.preventDefault();
-	const name = '' + $('#folder-name').val();
-	const folder = getCurrentFolder(filesystemPath);
-	$('#folder-name').val('');
-	if(name === '') {
-		folderErrorText.text('Please enter a name for the new folder.');
-		folderErrorText.addClass('attention');
-		return;
-	}
-	if (folder.folders.some((e) => e.name === name)) {
-		folderErrorText.text('That name is already taken; please enter a different name.');
-		folderErrorText.addClass('attention');
-		return;
-	}
-	folderErrorText.text('');
-	folder.folders.push({
-		name: name,
-		images: [],
-		folders: [],
-	});
-	rerenderFilesystem();
-});
 $('.layout-img').draggable();
 $('.layout-img').resizable({
 	aspectRatio: true,
@@ -549,27 +699,43 @@ function matchesFilter(image: Image, filter: Filter): boolean {
 }
 
 let addViewerShown : boolean = true;
+const DEFAULT_RATIO = 0.1;
 function rerenderFilesystem(): void {
-	rerenderFilesystemViewer(filesystemPath,
-		$('#filesystem-path'),
-		$('#filesystem-viewer'));
+	rerenderFilesystemViewer(filesystemPath, $('#main-folders'));
 	rerenderFilesystemViewer(addViewerPath,
-		$('#add-viewer-path'),
-		$('#add-viewer'),
+		$('#add-viewer-outer'),
 		"You don't have any images in this folder you can add! Go to Folders to find and add an image first.",
 		(image) => {
-			addImage(image);
+			addImage({
+				x: 0,
+				y: 0,
+				ratio: DEFAULT_RATIO,
+				filename: image.filename,
+			});
 			addViewerShown = false;
 			$('#add-viewer-outer').hide();
-			$('#new-image-triangle').html('&#x25BC;');
-		});
+			$('#layout-add-image-triangle').html('&#x25BC;');
+		},
+		(layout) => {
+			loadLayout(layout);
+			addViewerShown = false;
+			$('#add-viewer-outer').hide();
+			$('#layout-add-image-triangle').html('&#x25BC;');
+		},
+	);
+	rerenderFilesystemViewer(searchAddPath,
+		$('#search-add-modal'));
+	rerenderFilesystemViewer(saveLayoutPath,
+		$('#save-layout-modal'));
 }
-function rerenderFilesystemViewer(path: string[], $path: JQuery, $viewer: JQuery,
+function rerenderFilesystemViewer(path: string[], $parent: JQuery,
 	emptyMsg?: string,
-	imageCallback?: (image: ImageNode) => void): void {
+	imageCallback?: (image: ImageNode) => void,
+	layoutCallback?: (layout: LayoutNode) => void): void {
 
-	renderPath(path, $path);
-	renderFiles(path, $viewer, emptyMsg, imageCallback);
+	renderPath(path, $parent.find('.fs-path'));
+	renderFiles(path, $parent.find('.fs-viewer'),
+			emptyMsg, imageCallback, layoutCallback);
 }
 function renderPath(path, $path): void {
 	$path.empty();
@@ -616,16 +782,43 @@ function fillErrorModal(folderName: string) {
 function attachToErrorModal(callback: (e?: any) => void) {
 	$('#error-modal-delete').click(function(e) {
 		callback(e);
+		$('.modal-outer').hide();
 	});
 	$('#error-modal').click(function() {
 		$('#error-modal-delete').off('click');
 	});
 }
 
-function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callback?: (image: ImageNode) => void): void {
+function renderFiles(path: string[], $target: JQuery, emptyMsg?: string,
+		imageCallback?: (image: ImageNode) => void,
+		layoutCallback?: (layout: LayoutNode) => void): void {
+
 	const folder = getCurrentFolder(path);
 	$target.empty();
-	let folderEmpty = false;
+	let folderEmpty = true;
+	folder.folders.forEach((subfolder, i) => {
+		folderEmpty = false;
+		let subfolderEmpty = subfolder.images.length === 0 && subfolder.folders.length === 0;
+		$target.append(makeFolderElement(path, i, subfolder, () => {
+			path.push(subfolder.name);
+			rerenderFilesystem();
+		}, (e) => {
+			console.log(e);
+			if (subfolderEmpty) {
+				folder.folders.splice(i, 1);
+				rerenderFilesystem();
+			} else {
+				e.stopPropagation();
+				fillErrorModal(subfolder.name);
+				console.log('showing!');
+				$('#error-modal').show();
+				attachToErrorModal(function() {
+					folder.folders.splice(i, 1);
+					rerenderFilesystem();
+				})
+			}
+		}));
+	});
 	folder.images.forEach((image, i) => {
 		folderEmpty = false;
 		const $div = $(document.createElement('div'));
@@ -634,7 +827,7 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 		// $div.prop('draggable', true);
 		const myDraggedNodePathInfo: DraggedNodePathInfo = {
 			path: path.slice(0),
-			isFolder: false,
+			type: 'image',
 			index: i,
 		};
 		$div.addClass('folder-image');
@@ -653,33 +846,38 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string, callbac
 			src: image.filename,
 		});
 		$div.append($img);
-		$div.append(makeCloseButton(() => {
+		let $close = makeCloseButton(() => {
 			folder.images.splice(i, 1);
 			rerenderFilesystem();
-		}));
-		if (callback) {
-			$img.click(() => callback(image));
+		});
+		$div.append($close);
+		if (imageCallback) {
+			$img.click(() => imageCallback(image));
 		}
 		$target.append($div);
+
+		function repositionClose() {
+			// here there be dragons.
+			let rawImg = $img[0] as HTMLImageElement;
+			let cw = rawImg.clientWidth;
+			let ch = rawImg.clientHeight;
+			let nw = rawImg.naturalWidth;
+			let nh = rawImg.naturalHeight;
+			let r = Math.min(cw / nw, ch / nh);
+			$close.css('top' , `${12 + (ch - nh*r)/2}px`);
+			$close.css('left', `${12 + (cw - nw*r)/2}px`);
+		}
+		$img.mouseover(repositionClose);
+		repositionClose();
 	});
-	folder.folders.forEach((subfolder, i) => {
-		folderEmpty = subfolder.images.length === 0 && subfolder.folders.length === 0;
-		$target.append(makeFolderElement(path, i, subfolder, () => {
-			path.push(subfolder.name);
-			rerenderFilesystem();
-		}, (e) => {
-			if(folderEmpty) {
-				folder.folders.splice(i, 1);
-				rerenderFilesystem();
-			} else {
-				e.stopPropagation();
-				fillErrorModal(subfolder.name);
-				$('#error-modal').show();
-				attachToErrorModal(function() {
-					folder.folders.splice(i, 1);
-					rerenderFilesystem();
-				})
+	folder.layouts.forEach((layout, i) => {
+		$target.append(makeLayoutElement(path, i, layout, () => {
+			if (layoutCallback) {
+				layoutCallback(layout);
 			}
+		}, (e) => {
+			folder.layouts.splice(i, 1);
+			rerenderFilesystem();
 		}));
 	});
 	if (folderEmpty && emptyMsg) {
@@ -864,6 +1062,16 @@ interface LayoutInfo {
 	filename: string;
 	element: JQuery;
 }
+interface SerializedLayoutInfo {
+	x: number;
+	y: number;
+	ratio: number;
+	filename: string;
+}
+function serializedCopy(layoutInfo: LayoutInfo): SerializedLayoutInfo {
+	let {x, y, ratio, filename, element} = layoutInfo;
+	return {x, y, ratio, filename};
+}
 interface DragStatus {
 	type: 'move'|'nw'|'ne'|'sw'|'se';
 	x: number;
@@ -874,22 +1082,28 @@ let layoutInfos: { [key: number]: LayoutInfo } = {};
 let nextLayoutInfoKey = 0;
 let dragging: DragStatus|undefined = undefined;
 
-function addImage(image: ImageNode): void {
+function addImage(info: SerializedLayoutInfo): void {
+	const {x, y, ratio, filename} = info;
 	const key = nextLayoutInfoKey++;
 	const $img = $('<div>');
 	$img.addClass('layout-image');
-	const $closeButton = makeCloseButton(() => $img.remove());
+	const $closeButton = makeCloseButton(() => {
+		$img.remove();
+		delete layoutInfos[key];
+	});
+	// TODO I guess we don't have time to architect around sensible alt
+	// text...
 	$img.append(`
-		<img src="${image.filename}" alt="${image.name}">
+		<img src="${info.filename}" alt="${info.filename}">
 		<div class="ui-resizable-handle ui-resizable-nw" id="nwgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-ne" id="negrip"></div>
 		<div class="ui-resizable-handle ui-resizable-sw" id="swgrip"></div>
 		<div class="ui-resizable-handle ui-resizable-se" id="segrip"></div>
 	`);
 	const rawImg = $img.find('img')[0] as HTMLImageElement;
-	const ratio = 0.1;
 	$img.css('width',  ratio * rawImg.naturalWidth  + 'px');
 	$img.css('height', ratio * rawImg.naturalHeight + 'px');
+	$img.css('transform', `translate(${x}px, ${y}px)`);
 	$img.append($closeButton);
 	$img.mousedown((event) => {
 		if (dragging) return;
@@ -906,9 +1120,6 @@ function addImage(image: ImageNode): void {
 		event.preventDefault();
 		event.stopPropagation();
 	});
-	// $img.find('.ui-resizable-handle').mouseup((event) => {
-		// dragging = undefined;
-	// });
 	$img.find('.ui-resizable-handle').mousedown((event) => {
 		let type: 'nw'|'ne'|'sw'|'se'|undefined = undefined;
 		if ($(event.target).hasClass('ui-resizable-nw')) {
@@ -937,22 +1148,12 @@ function addImage(image: ImageNode): void {
 		event.preventDefault();
 		event.stopPropagation();
 	});
-	// $img.draggable();
-	// $img.resizable({
-	// 	aspectRatio: true,
-	// 	handles: {
-	// 		'nw': '.ui-resizable-nw',
-	// 		'ne': '.ui-resizable-ne',
-	// 		'sw': '.ui-resizable-sw',
-	// 		'se': '.ui-resizable-se',
-	// 	}
-	// });
 	$('.layout-area').append($img);
 	layoutInfos[key] = {
-		x: 0,
-		y: 0,
+		x: x,
+		y: y,
 		ratio: ratio,
-		filename: image.filename,
+		filename: filename,
 		element: $img,
 	};
 }
@@ -1052,35 +1253,110 @@ $(document).mouseup((event: JQuery.Event<HTMLElement, null>) => {
 	dragging = undefined;
 	event.preventDefault();
 });
+function loadLayout(layout: LayoutNode): void {
+	for (let k in layoutInfos) {
+		layoutInfos[k].element.remove();
+		delete layoutInfos[k];
+	}
+	for (let info of layout.infos) {
+		addImage(info);
+	}
+}
 
 $(document).ready(() => {
-	$('.modal-outer').click(function (e) {
-		if(e.target.id === 'modal-bg' || e.target.id === 'return-to-search') $(this).hide();
-		$(this).hide();
+	$('.modal-outer').click((e) => {
 		e.stopPropagation();
+	});
+	$('.close-modal').click((e) => {
+		$('.modal-outer').hide();
 	});
 	$('#add-to-folders').click(() => {
 		if (focusedSearchImage) {
-			// wow such haxx
-			getCurrentFolder(filesystemPath).images.push({
-				name: focusedSearchImage.filename,
-				filename: focusedSearchImage.filename,
-				// contents: undefined,
-			});
-		};
-		rerenderFilesystem();
+			$('#search-add-modal img.focused').attr('src',
+				focusedSearchImage.filename);
+			$('#search-add-modal .filename').text(
+				focusedSearchImage.filename);
+			$('#search-add-modal').show();
+		}
 		$('#search-modal').hide();
 	});
-	$('#new-image-button').click(() => {
+	$('#search-add-button').click(() => {
+		if (focusedSearchImage) {
+			getCurrentFolder(searchAddPath).images.push({
+				name: focusedSearchImage.filename,
+				filename: focusedSearchImage.filename,
+			});
+			rerenderFilesystem();
+		}
+		$('#search-add-modal').hide();
+	});
+	const folderErrorText = $('#folder-name-error-text');
+	attend(folderErrorText);
+
+	$('#new-folder-form').on('submit', function (event) {
+		event.preventDefault();
+		const name = '' + $('#folder-name').val();
+		const folder = getCurrentFolder(filesystemPath);
+		$('#folder-name').val('');
+		if(name === '') {
+			folderErrorText.text('Please enter a name for the new folder.');
+			folderErrorText.addClass('attention');
+			return;
+		}
+		if (folder.folders.some((e) => e.name === name)) {
+			folderErrorText.text('That name is already taken; please enter a different name.');
+			folderErrorText.addClass('attention');
+			return;
+		}
+		folderErrorText.text('');
+		folder.folders.push({
+			name: name,
+			images: [],
+			folders: [],
+			layouts: [],
+		});
+		rerenderFilesystem();
+	});
+
+	const layoutErrorText = $('#layout-name-error-text');
+	attend(layoutErrorText);
+	$('#layout-add-button').click(() => {
 		rerenderFilesystem();
 		addViewerShown = !addViewerShown;
 		if(addViewerShown) {
 			$('#add-viewer-outer').show();
-			$('#new-image-triangle').html('&#x25B2;');
+			$('#layout-add-triangle').html('&#x25B2;');
 		} else {
 			$('#add-viewer-outer').hide();
-			$('#new-image-triangle').html('&#x25BC;');
+			$('#layout-add-triangle').html('&#x25BC;');
 		}
+	});
+	let savedLayout: SerializedLayoutInfo[]|undefined;
+	$('#save-layout-button').click(() => {
+		$('#save-layout-modal').show();
+	});
+	$('.save-layout-submit').click((event) => {
+		event.preventDefault();
+		const name = $('#save-layout-name').val();
+		if (!name) {
+			layoutErrorText.text('Please enter a name for the new layout.');
+			layoutErrorText.addClass('attention');
+			return;
+		}
+		const folder = getCurrentFolder(saveLayoutPath);
+		if (folder.layouts.some((e) => e.name === name)) {
+			layoutErrorText.text('That name is already taken; please enter a different name.');
+			layoutErrorText.addClass('attention');
+			return;
+		}
+		let node: LayoutNode = {
+			name: name.toString(),
+			infos: Object.keys(layoutInfos).map((k) => serializedCopy(layoutInfos[k])),
+		};
+		getCurrentFolder(filesystemPath).layouts.push(node);
+		folderErrorText.text('');
+		rerenderFilesystem();
+		$('#save-layout-modal').hide();
 	});
 	$(document).mousedown(function (e) {
 		$('.layout-image').removeClass('layout-area-selected');

@@ -35,14 +35,11 @@
 			<h3>Find Reference Art with Referant</h3>
 			<div class="homehelp">
 				<p>At Referant, we have a varied database of images that can satisfy the needs of any artist.</p>
-				<a href="#" class="nav-link home-block" data-tab="main-search"><strong>Search</strong> <img src="search-example.png"> through our database of images. Filter by color or orientation to introduce variety to your pieces, or by license to keep track of your intellectual property.</a>
-				<a href="#" class="nav-link home-block" data-tab="main-folders"><strong>Organize</strong> <img src="folders-example.png"> your search results into folders through our simple file system.</a>
-				<a href="#" class="nav-link home-block" data-tab="main-layout"><strong>Lay out</strong> <img src="layouts-example.png"> your reference images to find the best pose and see how they fit together.</a>
-				<p>You can <a href="#" class="nav-link" data-tab="main-search">search</a> for images using various tags, and filter by color or license. We also support filtering by orientation of objects in the image, which lets you introduce variety to your pieces. You can categorize these images into various folders.</p>
-				<p>You can create <a href="#" class="nav-link" data-tab="main-folders">folders</a> to keep track of a variety of different projects. </p>
-				<p>You can arrange saved images in <a href="#" class="nav-link" data-tab="main-layout">layouts</a> to see how your referance images fit together. </p>
+				<a href="#" class="nav-link home-block" data-tab="main-search"><strong>Search</strong><span>through our database of images. Filter by color or orientation to introduce variety to your pieces, or by license to keep track of your intellectual property.</span><img src="search-example.png"></a>
+				<a href="#" class="nav-link home-block" data-tab="main-folders"><strong>Organize</strong><span>your search results into folders through our simple file system.</span><img src="folders-example.png"></a>
+				<a href="#" class="nav-link home-block" data-tab="main-layout"><strong>Lay out</strong><span>your reference images to find the best pose and see how they fit together.</span><img src="layouts-example.png"></a>
             </div>
-			<h3>Commonly Saved Images</h3>
+			<!--h3>Commonly Saved Images</h3>
 			<div class="popular">
 				<img src="dog1.jpg" alt="dog">
 				<img src="dog2.jpg" alt="dog">
@@ -50,7 +47,7 @@
 				<img src="dog4.jpg" alt="dog">
 				<img src="dog5.jpg" alt="dog">
 				<img src="dog6.jpg" alt="dog">
-			</div>
+			</div-->
 		</div>
 		<div class="main-tab main-search">
 			<h2>Search</h2>
@@ -83,19 +80,32 @@
 				</div>
 			</div>
 			<div class="modal-outer" id="search-modal">
-				<div class="modal-bg" id="modal-bg">
+				<div class="modal-bg">
 					<img src="dog1.jpg" alt="dog">
 					<div class="modal-side">
 						<div class="filename">dog1.jpg</div>
 						<div class="description">Tags: ...</div>
-						<button class="btn" id="add-to-home">Add to Home Folder</button>
-						<button class="btn" id="add-to-folders">Add to Folders <span id="triangle"> &#x25BC; </span></button>
-						<button class="btn" id="return-to-search">Return to Search</button>
+						<button class="btn" id="add-to-folders">Add to Folder...</button>
+						<button class="btn close-modal">Return to Search</button>
 					</div>
 				</div>
 			</div>
+			<div class="modal-outer" id="search-add-modal">
+				<div class="modal-bg modal-vertical">
+					<div class="modal-top-side">
+						<img src="dog1.jpg" alt="dog" class="focused">
+						<div class="filename-wrap">Add <span class="filename">dog1.jpg</span> to folder</div>
+					</div>
+					<div>Current location:
+						<span class="fs-path"></span>
+					</div>
+					<div class="fs-viewer"></div>
+					<div><button class="btn close-modal">Cancel</button>
+						<button class="btn" id="search-add-button">Add to Folder</button></div>
+				</div>
+			</div>
 		</div>
-		<div class="main-tab main-folders">
+		<div class="main-tab main-folders" id="main-folders">
 			<h2>Folders</h2>
 			<!--button class="btn" id="header-button"> Search for a New Image <span id="triangle"> &#x25BC; </span> </button>
 			<div class="dialog" id="search-dialog">
@@ -133,30 +143,44 @@
 				<form id="new-folder-form">
 					<div id="new-folder-form-inputs">
 						<input id="folder-name" class="folder-name" type="text" placeholder="Folder Name" />
-						<input type="submit" class="btn" id="new-folder-button" value="Add New Folder"></input>
+						<input type="submit" class="btn" id="new-folder-button" value="Add New Folder" />
 					</div>
 					<div id="folder-name-error-text"> </div>
 				</form>
-				<div id="filesystem-path-outer">Current location:
-					<span id="filesystem-path"></span>
+				<div>Current location:
+					<span class="fs-path"></span>
 				</div>
-				<div class = "folder-display" id="filesystem-viewer">
-				</div>
+				<div class="fs-viewer"></div>
 			</div>
 		</div>
 		<div class="main-tab main-layout">
             <h2 id="layout-title">Layout</h2>
-			
-
-			<button class="btn" id="new-image-button">Add Image <span id="new-image-triangle">&#x25B2;</span></button>
+			<button class="btn" id="layout-add-button">Add Image / Load Layout <span id="layout-add-triangle">&#x25B2;</span></button>
 			<div class="dialog dialog-padded" id="add-viewer-outer">
-				<div id="add-viewer-path-outer">Current location:
-					<span id="add-viewer-path"></span>
+				<div>Current location:
+					<span class="fs-path"></span>
 				</div>
-				<div class="folder-display" id="add-viewer">
-				</div>
+				<div class="fs-viewer"></div>
 			</div>
+			<button class="btn" id="save-layout-button">Save Layout...</button>
 			<div class="layout-area">
+			</div>
+			<div class="modal-outer" id="save-layout-modal">
+				<form class="modal-bg modal-vertical" id="save-layout-form">
+					<div class="modal-top-side">
+						<label class="layout-label" for="layout-name">Name your layout:</label> <input id="save-layout-name" class="folder-name" type="text" placeholder="Layout Name" />
+						<input type="submit" class="btn save-layout-submit offscreen" value="Save Layout">
+						<div id="layout-name-error-text"> </div>
+					</div>
+					<div id="save-layout-filesystem-path-outer">Current location:
+						<span class="fs-path"></span>
+					</div>
+					<div class="fs-viewer" id="save-layout-filesystem-viewer">
+					</div>
+					<div><button class="btn close-modal">Cancel</button>
+						<input type="submit" class="btn save-layout-submit" value="Save Layout">
+					</div>
+				</form>
 			</div>
 		</div>
 	</main>

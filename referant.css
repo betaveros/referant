@@ -82,32 +82,35 @@ a.nav-link:hover {
 	margin-right: .5em;
 }
 
-.main-home img, .search-results img, .folder-display img {
+.main-home img, .search-results img, .fs-viewer img {
 	max-height: 18rem;
 }
 
 .home-block {
-	display: block;
+	display: flex;
+	flex-direction: flex-row;
+	align-items: center;
 	font-size: 150%;
 	text-decoration: none;
 	position: relative;
 	margin: 0 0 0.5em;
+	background-color: hsl(210,39%,17%);
+	border-radius: 1em;
+}
+.home-block:hover {
+	background-color: hsl(212,20%,24%);
 }
 .home-block strong {
 	display: block;
-	float: left;
+	white-space: pre;
 	font-size: 250%;
-	margin: 0 0.35em 0.1em 0;
+	margin: 0 0.35em;
+}
+.home-block span {
+	flex-grow: 1;
 }
 .home-block img {
-	display: block;
-	float: right;
 	height: 120px;
-}
-.home-block:after {
-	display: block;
-	content: " ";
-	clear: both;
 }
 
 .popular{
@@ -131,12 +134,11 @@ a.nav-link:hover {
 	display: none;
 }
 
-.folder-display{
-
+.fs-viewer {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, 100px);
-  	grid-gap: 10px;
-  	grid-auto-rows: minmax(100px, auto)
+	grid-gap: 10px;
+	grid-auto-rows: minmax(100px, auto)
 }
 .folder-full-msg {
 	grid-column: 1 / span 100;
@@ -223,9 +225,11 @@ input.folder-name {
 	margin: 0;
 	font-size: 75%;
 	background-color: #c00;
+	border: 1px solid #e00;
 }
 .close:hover {
 	background-color: #f00;
+	border: 1px solid #f22;
 }
 .folder:hover .close, .folder-image:hover .close, .layout-image.layout-area-selected .close, .layout-image:hover .close {
 	display: block;
@@ -436,7 +440,7 @@ input.folder-name {
 	filter: brightness(115%);
 }
 
-.folder-display{
+.fs-viewer {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(7em, 1fr));
   	grid-gap: .5em;
@@ -482,11 +486,11 @@ input.folder-name {
 	border: 1px solid black;
 }
 
-.folder-display.dialog { display: none; }
+.fs-viewer.dialog { display: none; }
 
 .modal-outer { display: none; }
 .modal-bg {
-	z-index: 1337;
+	z-index: 31337;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -498,19 +502,50 @@ input.folder-name {
 	flex-direction: row;
 	align-items: center;
 }
+.modal-bg.modal-vertical {
+	flex-direction: column;
+	align-items: center;
+	justify-items: center;
+}
 .modal-bg img {
+	object-fit: contain;
+}
+.modal-bg > img {
 	width: 50%;
 	max-height: 100%;
-	object-fit: contain;
-	/* margin-right: 1em; */
 }
 .modal-bg .modal-side {
 	width: 50%;
 	text-align: center;
 }
-.modal-bg .filename {
+.modal-bg.modal-vertical .modal-top-side {
+	height: 30%;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: baseline;
+	margin-bottom: 0.8em;
+}
+.modal-bg.modal-vertical .fs-viewer {
+	flex-grow: 1;
+}
+.modal-bg.modal-vertical .modal-top-side img {
+	height: 100%;
+}
+.modal-bg .modal-side .filename {
 	font-size: 300%;
 	margin-bottom: 0.2em;
+}
+.modal-bg .modal-top-side .layout-label {
+	margin-right: 0.6em;
+}
+.modal-bg .modal-top-side .filename-wrap {
+	font-size: 150%;
+	margin-left: 0.2em;
+}
+.modal-bg .fs-viewer {
+	width: 100%;
 }
 
 @media only screen and (max-width: 1120px) {
@@ -522,8 +557,13 @@ input.folder-name {
 	.modal-bg .modal-side {
 		width: 100%;
 	}
-	.modal-bg img {
+	.modal-bg > img {
 		width: 100%;
 		max-height: 75%;
 	}
+}
+
+.offscreen {
+	position: absolute;
+	left: -31337px; /* haxx */
 }
