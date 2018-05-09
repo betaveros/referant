@@ -183,7 +183,8 @@
 					</div>
 					<div class="fs-viewer" id="save-layout-filesystem-viewer">
 					</div>
-					<div><button class="btn close-modal">Cancel</button>
+					<div>
+						<button class="btn close-modal">Cancel</button>
 						<input type="submit" class="btn save-layout-submit" value="Save Layout">
 					</div>
 				</form>
@@ -197,7 +198,7 @@
 					The folder &ldquo;<span class="error-modal-contents"></span>&rdquo; is not empty. Do you want to delete it anyway?
 				</h4>
 				<button class="btn" id="error-modal-delete">Yes, delete &ldquo;<span class="error-modal-contents"></span>&rdquo;</button>
-				<button class="btn" id="error-modal-keep">No, keep &ldquo;<span class="error-modal-contents"></span>&rdquo;</button>
+				<button class="btn close-modal" id="error-modal-keep">No, keep &ldquo;<span class="error-modal-contents"></span>&rdquo;</button>
 			</div>
 		</div>
 	</div>

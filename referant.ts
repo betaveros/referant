@@ -1268,8 +1268,9 @@ $(document).ready(() => {
 		e.stopPropagation();
 	});
 	$('.close-modal').click((e) => {
+		e.preventDefault();
+		e.stopPropagation();
 		$('.modal-outer').hide();
-		$('.close-modal').css('background-color', 'red');
 	});
 	$('#add-to-folders').click(() => {
 		if (focusedSearchImage) {
