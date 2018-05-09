@@ -523,7 +523,8 @@ input.folder-name {
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
-	align-items: center;
+	align-items: baseline;
+	margin-bottom: 0.8em;
 }
 .modal-bg.modal-vertical .folder-display {
 	flex-grow: 1;
@@ -535,7 +536,7 @@ input.folder-name {
 	font-size: 300%;
 	margin-bottom: 0.2em;
 }
-.modal-bg .modal-top-side .filename {
+.modal-bg .modal-top-side .filename-wrap {
 	font-size: 150%;
 	margin-left: 0.2em;
 }
