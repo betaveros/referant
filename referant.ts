@@ -172,7 +172,113 @@ const images: Image[] = [
 		keywords: ['moon', 'night', 'sky', 'astronomy'],
 		colors: ['gray'],
 		license: ['reuse'],
-	}
+	},
+	{
+		filename: 'cat-in-chair.jpg',
+		keywords: ['tabby', 'cat'],
+		colors: ['orange'],
+		license: ['reuse'],
+		view: ['front'],
+	},
+	{
+		filename: 'red-fox.jpg',
+		keywords: ['fox'],
+		colors: ['orange'],
+		license: ['reuse'],
+		view: ['front'],
+	},
+	{
+		filename: 'fox-portrait.jpg',
+		keywords: ['fox'],
+		colors: ['orange'],
+		license: ['reuse'],
+		view: ['side'],
+	},
+	{
+		filename: 'hong-kong-night-market.jpg',
+		keywords: ['market'],
+		colors: ['orange'],
+	},
+	{
+		filename: 'match.jpg',
+		keywords: ['match', 'fire'],
+		colors: ['orange'],
+	},
+	{
+		filename: 'fish.jpg',
+		keywords: ['fish'],
+		colors: ['blue'],
+	},
+	{
+		filename: 'purple-water-lily.jpg',
+		keywords: ['flower'],
+		colors: ['purple'],
+	},
+	{
+		filename: 'purple-rocky-coast.jpg',
+		keywords: ['rock', 'coast', 'mist'],
+		colors: ['purple'],
+	},
+	{
+		filename: 'grapes.jpg',
+		keywords: ['fruit', 'grape'],
+		colors: ['purple'],
+	},
+	{
+		filename: 'strawberries.jpg',
+		keywords: ['fruit', 'strawberry'],
+		colors: ['red'],
+	},
+	{
+		filename: 'butterfly.jpg',
+		keywords: ['insect', 'butterfly'],
+		colors: ['yellow', 'black'],
+	},
+	{
+		filename: 'peach.jpg',
+		keywords: ['fruit', 'peach'],
+		colors: ['yellow', 'red'],
+	},
+	{
+		filename: 'banana.jpg',
+		keywords: ['fruit', 'banana'],
+		colors: ['yellow'],
+	},
+	{
+		filename: 'butterfly-2.jpg',
+		keywords: ['insect', 'butterfly'],
+		colors: ['yellow', 'black', 'blue', 'orange'],
+	},
+	{
+		filename: 'bulbs.jpg',
+		keywords: ['vegetable', 'onion', 'garlic'],
+		colors: ['purple', 'white', 'orange'],
+	},
+	{
+		filename: 'ford.jpg',
+		keywords: ['car', 'ford'],
+		colors: ['red'],
+	},
+	{
+		filename: 'meadow.jpg',
+		keywords: ['grass'],
+		colors: ['green'],
+	},
+	{
+		filename: 'kitty.jpg',
+		keywords: ['kitten', 'cat', 'flower'],
+		colors: ['gray', 'white'],
+	},
+	{
+		filename: 'elephants.jpg',
+		keywords: ['elephant'],
+		colors: ['gray'],
+	},
+	{
+		filename: 'wolf.jpg',
+		keywords: ['wolf'],
+		colors: ['gray'],
+	},
 ];
 
 interface FolderNode {
