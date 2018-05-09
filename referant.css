@@ -560,3 +560,8 @@ input.folder-name {
 		max-height: 75%;
 	}
 }
+
+.offscreen {
+	position: absolute;
+	left: -31337px; /* haxx */
+}

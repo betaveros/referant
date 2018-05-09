@@ -696,12 +696,14 @@ function renderFiles(path: string[], $target: JQuery, emptyMsg?: string,
 			path.push(subfolder.name);
 			rerenderFilesystem();
 		}, (e) => {
+			console.log(e);
 			if (subfolderEmpty) {
 				folder.folders.splice(i, 1);
 				rerenderFilesystem();
 			} else {
 				e.stopPropagation();
 				fillErrorModal(subfolder.name);
+				console.log('showing!');
 				$('#error-modal').show();
 				attachToErrorModal(function() {
 					folder.folders.splice(i, 1);
@@ -1211,7 +1213,7 @@ $(document).ready(() => {
 	$('#save-layout-button').click(() => {
 		$('#save-layout-modal').show();
 	});
-	$('#save-layout-form').on('submit', function (event) {
+	$('.save-layout-submit').click((event) => {
 		event.preventDefault();
 		const name = $('#save-layout-name').val();
 		if (!name) {
