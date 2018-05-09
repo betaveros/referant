@@ -96,17 +96,16 @@
 						<img src="dog1.jpg" alt="dog" class="focused">
 						<div class="filename-wrap">Add <span class="filename">dog1.jpg</span> to folder</div>
 					</div>
-					<div id="search-add-filesystem-path-outer">Current location:
-						<span id="search-add-filesystem-path"></span>
+					<div>Current location:
+						<span class="fs-path"></span>
 					</div>
-					<div class = "folder-display" id="search-add-filesystem-viewer">
-					</div>
+					<div class="fs-viewer"></div>
 					<div><button class="btn close-modal">Cancel</button>
 						<button class="btn" id="search-add-button">Add to Folder</button></div>
 				</div>
 			</div>
 		</div>
-		<div class="main-tab main-folders">
+		<div class="main-tab main-folders" id="main-folders">
 			<h2>Folders</h2>
 			<!--button class="btn" id="header-button"> Search for a New Image <span id="triangle"> &#x25BC; </span> </button>
 			<div class="dialog" id="search-dialog">
@@ -148,28 +147,39 @@
 					</div>
 					<div id="folder-name-error-text"> </div>
 				</form>
-				<div id="filesystem-path-outer">Current location:
-					<span id="filesystem-path"></span>
+				<div>Current location:
+					<span class="fs-path"></span>
 				</div>
-				<div class = "folder-display" id="filesystem-viewer">
-				</div>
+				<div class="fs-viewer"></div>
 			</div>
 		</div>
 		<div class="main-tab main-layout">
             <h2 id="layout-title">Layout</h2>
-			
-
-			<button class="btn" id="new-image-button">Add Image <span id="new-image-triangle">&#x25B2;</span></button>
+			<button class="btn" id="layout-add-button">Add Image / Load Layout <span id="layout-add-triangle">&#x25B2;</span></button>
 			<div class="dialog dialog-padded" id="add-viewer-outer">
-				<div id="add-viewer-path-outer">Current location:
-					<span id="add-viewer-path"></span>
+				<div>Current location:
+					<span class="fs-path"></span>
 				</div>
-				<div class="folder-display" id="add-viewer">
-				</div>
+				<div class="fs-viewer"></div>
 			</div>
 			<button class="btn" id="save-layout-button">Save Layout...</button>
-			<button class="btn" id="load-layout-button">Load Layout...</button>
 			<div class="layout-area">
+			</div>
+			<div class="modal-outer" id="save-layout-modal">
+				<form class="modal-bg modal-vertical" id="save-layout-form">
+					<div class="modal-top-side">
+						<label class="layout-label" for="layout-name">Name your layout:</label> <input id="save-layout-name" class="folder-name" type="text" placeholder="Layout Name" />
+						<div id="layout-name-error-text"> </div>
+					</div>
+					<div id="save-layout-filesystem-path-outer">Current location:
+						<span class="fs-path"></span>
+					</div>
+					<div class="fs-viewer" id="save-layout-filesystem-viewer">
+					</div>
+					<div><button class="btn close-modal">Cancel</button>
+						<input type="submit" class="btn" value="Save Layout">
+					</div>
+				</form>
 			</div>
 		</div>
 	</main>
