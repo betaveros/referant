@@ -1269,6 +1269,7 @@ $(document).ready(() => {
 	});
 	$('.close-modal').click((e) => {
 		$('.modal-outer').hide();
+		$('.close-modal').css('background-color', 'red');
 	});
 	$('#add-to-folders').click(() => {
 		if (focusedSearchImage) {
@@ -1320,8 +1321,9 @@ $(document).ready(() => {
 
 	const layoutErrorText = $('#layout-name-error-text');
 	attend(layoutErrorText);
-	$('#layout-add-button').click(() => {
+	$('#layout-add-button').click((e) => {
 		rerenderFilesystem();
+		e.stopPropagation();
 		addViewerShown = !addViewerShown;
 		if(addViewerShown) {
 			$('#add-viewer-outer').show();
@@ -1331,6 +1333,13 @@ $(document).ready(() => {
 			$('#layout-add-triangle').html('&#x25BC;');
 		}
 	});
+	$(document).click(function() {
+		if(addViewerShown) {
+			addViewerShown = false;
+			$('#add-viewer-outer').hide();
+			$('#layout-add-triangle').html('&#x25BC;');
+		}
+	})
 	let savedLayout: SerializedLayoutInfo[]|undefined;
 	$('#save-layout-button').click(() => {
 		$('#save-layout-modal').show();

@@ -155,14 +155,20 @@
 		</div>
 		<div class="main-tab main-layout">
             <h2 id="layout-title">Layout</h2>
-			<button class="btn" id="layout-add-button">Add Image / Load Layout <span id="layout-add-triangle">&#x25B2;</span></button>
-			<div class="dialog dialog-padded" id="add-viewer-outer">
-				<div>Current location:
-					<span class="fs-path"></span>
+            <div class="buttons-and-dialog">
+            	<div>
+					<button class="btn" id="layout-add-button">Add Image / Load Layout <span id="layout-add-triangle">&#x25B2;</span></button>
+					<button class="btn" id="save-layout-button">Save Layout...</button>
 				</div>
-				<div class="fs-viewer"></div>
+				<div class="dialog-container">
+					<div class="dialog dialog-padded" id="add-viewer-outer">
+						<div>Current location:
+							<span class="fs-path"></span>
+						</div>
+						<div class="fs-viewer"></div>
+					</div>
+				</div>
 			</div>
-			<button class="btn" id="save-layout-button">Save Layout...</button>
 			<div class="layout-area">
 			</div>
 			<div class="modal-outer" id="save-layout-modal">

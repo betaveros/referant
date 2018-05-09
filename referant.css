@@ -548,6 +548,16 @@ input.folder-name {
 	width: 100%;
 }
 
+.buttons-and-dialog {
+	display: grid;
+	grid-template-columns: auto;
+	grid-template-rows: auto 0;
+}
+
+.dialog-container {
+	z-index: 1336;
+}
+
 @media only screen and (max-width: 1120px) {
 	.modal-bg {
 		flex-direction: column;
